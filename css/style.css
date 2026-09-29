@@ -1112,6 +1112,200 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
+   5-CHARACTER SELECTION SYSTEM & PERKS
+   -------------------------------------------------------------------------- */
+.char-selector-wrapper {
+  width: 100%;
+  max-width: 960px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.char-selector-header {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  color: #BBEAF4;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.char-selector-header::before,
+.char-selector-header::after {
+  content: '';
+  display: inline-block;
+  width: 40px;
+  height: 1px;
+  background: #54D3F5;
+}
+
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+.char-card {
+  background: rgba(7, 30, 48, 0.75);
+  border: 2px solid rgba(84, 211, 245, 0.3);
+  border-radius: 12px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25 ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.char-card:hover {
+  transform: translateY(-4px);
+  border-color: #54D3F5;
+  box-shadow: 0 8px 24px rgba(7, 143, 189, 0.4);
+  background: rgba(7, 45, 70, 0.85);
+}
+
+.char-card.selected {
+  border-color: var(--game-gold);
+  background: rgba(20, 60, 95, 0.95);
+  box-shadow: 0 0 20px rgba(255, 216, 46, 0.6), inset 0 0 15px rgba(255, 216, 46, 0.2);
+}
+
+.char-avatar-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid #54D3F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.char-card.selected .char-avatar-box {
+  border-color: var(--game-gold);
+  box-shadow: 0 0 12px var(--game-gold);
+}
+
+.char-name {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+  white-space: nowrap;
+}
+
+.char-class {
+  font-family: var(--font-nav);
+  font-size: 10px;
+  color: #BBEAF4;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+
+.char-perk-badge {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(84, 211, 245, 0.5);
+  border-radius: 6px;
+  padding: 4px 6px;
+  width: 100%;
+  font-size: 10px;
+  color: var(--game-gold);
+  font-family: var(--font-game);
+  line-height: 1.2;
+  min-height: 38px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.char-card.selected .char-perk-badge {
+  border-color: var(--game-gold);
+  background: rgba(255, 216, 46, 0.15);
+}
+
+.char-select-btn {
+  margin-top: 8px;
+  font-family: var(--font-game);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: none;
+  background: rgba(84, 211, 245, 0.2);
+  color: #54D3F5;
+  cursor: pointer;
+  width: 100%;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.char-card.selected .char-select-btn {
+  background: var(--game-gold);
+  color: #5C3A00;
+}
+
+/* In-HUD Character Badge */
+.hud-char-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(7, 30, 48, 0.8);
+  border: 1.5px solid #54D3F5;
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+.hud-char-icon {
+  font-size: 18px;
+}
+
+.hud-char-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-char-name-text {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  color: #FFFFFF;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.hud-char-perk-text {
+  font-family: var(--font-game);
+  font-size: 10px;
+  color: var(--game-gold);
+  line-height: 1.2;
+}
+
+@media (max-width: 900px) {
+  .char-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
+  .char-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* --------------------------------------------------------------------------
    RESPONSIVE DESIGN
    -------------------------------------------------------------------------- */
 @media (max-width: 1199px) {
@@ -1133,3 +1327,4 @@ html, body {
   .stats-strip { grid-template-columns: 1fr; padding: 20px; }
   .stats-group { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
 }
+

@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSearch();
   initTrailerCanvas();
   initSocials();
+  initCharacterSelection();
 });
 
 /* --------------------------------------------------------------------------
@@ -299,5 +300,49 @@ function initSocials() {
         alert(`Connecting to CYBER OF X ${id.replace('btn-', '').toUpperCase()} feed...`);
       });
     }
+  });
+}
+
+/* --------------------------------------------------------------------------
+   Character Selection System
+   -------------------------------------------------------------------------- */
+function initCharacterSelection() {
+  const charCards = document.querySelectorAll('.char-card');
+  if (!charCards.length) return;
+
+  // Set initial selected state from localStorage
+  const savedChar = localStorage.getItem('cyber_run_char') || 'vex';
+  charCards.forEach(card => {
+    const charId = card.dataset.char;
+    const btn = card.querySelector('.char-select-btn');
+    if (charId === savedChar) {
+      card.classList.add('selected');
+      if (btn) btn.textContent = 'EQUIPPED';
+    } else {
+      card.classList.remove('selected');
+      if (btn) btn.textContent = 'SELECT';
+    }
+  });
+
+  charCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const charId = card.dataset.char;
+      if (!charId) return;
+
+      // Update UI
+      charCards.forEach(c => {
+        c.classList.remove('selected');
+        const b = c.querySelector('.char-select-btn');
+        if (b) b.textContent = 'SELECT';
+      });
+      card.classList.add('selected');
+      const btn = card.querySelector('.char-select-btn');
+      if (btn) btn.textContent = 'EQUIPPED';
+
+      // Apply to game engine
+      if (window.CyberRunGame) {
+        window.CyberRunGame.setCharacter(charId);
+      }
+    });
   });
 }

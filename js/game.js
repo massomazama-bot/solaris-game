@@ -58,6 +58,62 @@
   ];
 
   // ------------------------------------------------------------------------
+  // CHARACTER DEFINITIONS & PERKS
+  // ------------------------------------------------------------------------
+  const CHARACTERS = {
+    vex: {
+      id: 'vex',
+      name: 'PILOT VEX',
+      class: 'CYBER RUNNER',
+      icon: '🎧',
+      perkName: 'BALANCED PILOT',
+      perkDesc: '+10% Bonus Base Score',
+      colors: { jacket: 0x168DAB, patch: 0xFFF79A, hood: 0xF5E6D3, visor: 0xE84936, pants: 0x2C4E6F, shoes: 0xFFFFFF, arms: 0x168DAB },
+      perks: { scoreMultiplier: 1.1 }
+    },
+    nova: {
+      id: 'nova',
+      name: 'NOVA STRIKE',
+      class: 'NEON SHADOW',
+      icon: '🥷',
+      perkName: 'MAGNET MASTER',
+      perkDesc: '+50% Magnet Duration & Range',
+      colors: { jacket: 0x6A327D, patch: 0x00F0FF, hood: 0x100E18, visor: 0x00F0FF, pants: 0x1A1A2E, shoes: 0x6A327D, arms: 0x6A327D },
+      perks: { magnetDuration: 12, magnetRange: 18 }
+    },
+    aria: {
+      id: 'aria',
+      name: 'ARIA BLITZ',
+      class: 'HYPER SPEEDSTER',
+      icon: '⚡',
+      perkName: 'HYPER VELOCITY',
+      perkDesc: '+20% Speed & 1.5x Distance Score',
+      colors: { jacket: 0xFFD82E, patch: 0xFF145B, hood: 0xFF8C00, visor: 0xFFFFFF, pants: 0x1B2A4A, shoes: 0xFFD82E, arms: 0xFFD82E },
+      perks: { speedMultiplier: 1.2, distanceMultiplier: 1.5 }
+    },
+    titan: {
+      id: 'titan',
+      name: 'TITAN REX',
+      class: 'CYBER MECH',
+      icon: '🤖',
+      perkName: 'IRON SHIELD',
+      perkDesc: 'Auto 1st Shield & 30s Recharge',
+      colors: { jacket: 0x808080, patch: 0xFF0000, hood: 0x404040, visor: 0xFF0000, pants: 0x1A1A1A, shoes: 0x808080, arms: 0x808080 },
+      perks: { startWithShield: true, shieldRecharge: 30 }
+    },
+    zephyr: {
+      id: 'zephyr',
+      name: 'ZEPHYR VOID',
+      class: 'METAVERSE PHANTOM',
+      icon: '🔮',
+      perkName: 'COIN ALCHEMIST',
+      perkDesc: '2x Gold Coins & +25% Hover',
+      colors: { jacket: 0x79B34C, patch: 0x9B59B6, hood: 0xB8E6C8, visor: 0x9B59B6, pants: 0x2D5A27, shoes: 0x79B34C, arms: 0x79B34C },
+      perks: { coinMultiplier: 2, hoverDuration: 7.5 }
+    }
+  };
+
+  // ------------------------------------------------------------------------
   // WEB AUDIO SYNTHESIZER
   // ------------------------------------------------------------------------
   class SoundEngine {
@@ -268,6 +324,12 @@
         hover: 0
       };
 
+      // Character & Perks
+      this.selectedCharacter = localStorage.getItem('cyber_run_char') || 'vex';
+      this.characterPerks = CHARACTERS[this.selectedCharacter].perks;
+      this.characterColors = CHARACTERS[this.selectedCharacter].colors;
+      this.shieldRechargeTimer = 0;
+
       // World Pools
       this.trackSegments = [];
       this.obstacles = [];
@@ -306,8 +368,8 @@
       if (typeof THREE === 'undefined') return;
 
       this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(0xF28DBA);
-      this.scene.fog = new THREE.FogExp2(0xFFD7A0, 0.012);
+      this.scene.background = new THREE.Color(0x87CEEB);
+      this.scene.fog = new THREE.FogExp2(0x87CEEB, 0.008);
 
       this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 250);
       this.camera.position.set(0, 4.5, 7.5);
@@ -332,34 +394,61 @@
       this.createInitialWorld();
     }
 
+    setCharacter(charId) {
+      if (!CHARACTERS[charId]) return;
+      this.selectedCharacter = charId;
+      this.characterPerks = CHARACTERS[charId].perks;
+      this.characterColors = CHARACTERS[charId].colors;
+      localStorage.setItem('cyber_run_char', charId);
+      this.rebuildPlayerModel();
+      this.updateCharacterHUD();
+    }
+
+    updateCharacterHUD() {
+      const char = CHARACTERS[this.selectedCharacter];
+      const iconEl = document.getElementById('hud-char-icon');
+      const nameEl = document.getElementById('hud-char-name');
+      const perkEl = document.getElementById('hud-char-perk');
+      if (iconEl) iconEl.textContent = char.icon;
+      if (nameEl) nameEl.textContent = char.name;
+      if (perkEl) perkEl.textContent = char.perkDesc;
+    }
+
+    rebuildPlayerModel() {
+      if (!this.playerMesh || !this.scene) return;
+      this.scene.remove(this.playerMesh);
+      this.createCartoonRunner();
+    }
+
     createCartoonRunner() {
+      const c = this.characterColors;
       const group = new THREE.Group();
 
       const jacketGeo = new THREE.BoxGeometry(0.7, 0.9, 0.5);
-      const jacketMat = new THREE.MeshStandardMaterial({ color: 0x168DAB, roughness: 0.5 });
+      const jacketMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.5 });
       const jacket = new THREE.Mesh(jacketGeo, jacketMat);
       jacket.position.y = 1.05;
       group.add(jacket);
 
       const patchGeo = new THREE.BoxGeometry(0.4, 0.4, 0.05);
-      const patchMat = new THREE.MeshStandardMaterial({ color: 0xFFF79A });
+      const patchMat = new THREE.MeshStandardMaterial({ color: c.patch });
       const patch = new THREE.Mesh(patchGeo, patchMat);
       patch.position.set(0, 1.1, 0.26);
       group.add(patch);
 
       const hoodGeo = new THREE.SphereGeometry(0.48, 16, 16);
-      const hoodMat = new THREE.MeshStandardMaterial({ color: 0xF5E6D3, roughness: 0.6 });
+      const hoodMat = new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.6 });
       const hood = new THREE.Mesh(hoodGeo, hoodMat);
       hood.position.set(0, 1.7, 0);
       group.add(hood);
 
       const visorGeo = new THREE.BoxGeometry(0.45, 0.08, 0.3);
-      const visorMat = new THREE.MeshStandardMaterial({ color: 0xE84936 });
+      const visorMat = new THREE.MeshStandardMaterial({ color: c.visor });
       const visor = new THREE.Mesh(visorGeo, visorMat);
       visor.position.set(0, 1.65, -0.4);
       group.add(visor);
 
-      const pantsMat = new THREE.MeshStandardMaterial({ color: 0x2C4E6F, roughness: 0.6 });
+      const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.6 });
       
       this.leftLeg = new THREE.Group();
       const leftLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.65, 0.26), pantsMat);
@@ -375,7 +464,7 @@
       this.rightLeg.position.set(0.22, 0.65, 0);
       group.add(this.rightLeg);
 
-      const shoeMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.2 });
+      const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.2 });
       const shoeLeft = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.45), shoeMat);
       shoeLeft.position.set(0, -0.65, -0.05);
       this.leftLeg.add(shoeLeft);
@@ -384,7 +473,7 @@
       shoeRight.position.set(0, -0.65, -0.05);
       this.rightLeg.add(shoeRight);
 
-      const armMat = new THREE.MeshStandardMaterial({ color: 0x168DAB });
+      const armMat = new THREE.MeshStandardMaterial({ color: c.arms });
       this.leftArm = new THREE.Group();
       const leftArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 0.2), armMat);
       leftArmMesh.position.y = -0.3;
@@ -443,15 +532,22 @@
       const group = new THREE.Group();
       group.position.z = zPos;
 
-      const groundGeo = new THREE.PlaneGeometry(36, 20);
-      const groundMat = new THREE.MeshStandardMaterial({
-        color: 0xC58236,
-        roughness: 0.8
-      });
+      // Grass ground
+      const groundGeo = new THREE.PlaneGeometry(80, 20);
+      const groundMat = new THREE.MeshStandardMaterial({ color: 0x4A7C3F, roughness: 0.9 });
       const ground = new THREE.Mesh(groundGeo, groundMat);
       ground.rotation.x = -Math.PI / 2;
       group.add(ground);
 
+      // Dirt path along tracks
+      const pathGeo = new THREE.PlaneGeometry(10, 20);
+      const pathMat = new THREE.MeshStandardMaterial({ color: 0x8B6914, roughness: 0.95 });
+      const path = new THREE.Mesh(pathGeo, pathMat);
+      path.rotation.x = -Math.PI / 2;
+      path.position.y = 0.01;
+      group.add(path);
+
+      // Rails and sleepers
       const railTopMat = new THREE.MeshStandardMaterial({ color: 0x82C9D4, metalness: 0.8, roughness: 0.2 });
       const railSideMat = new THREE.MeshStandardMaterial({ color: 0x355A65, roughness: 0.5 });
       const sleeperMat = new THREE.MeshStandardMaterial({ color: 0x8F5D2D, roughness: 0.9 });
@@ -462,58 +558,193 @@
           sleeper.position.set(laneX, 0.04, sz);
           group.add(sleeper);
         }
-
         [-0.65, 0.65].forEach((offset) => {
           const rx = laneX + offset;
           const railTop = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.1, 20), railTopMat);
           railTop.position.set(rx, 0.12, 0);
           group.add(railTop);
-
           const railSide = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 20), railSideMat);
           railSide.position.set(rx, 0.05, 0);
           group.add(railSide);
         });
       });
 
-      const buildingColors = [0xF79025, 0xE84936, 0x168DAB, 0xFFD82E, 0x79B34C];
-      [-12, 12].forEach((bx, sideIdx) => {
-        for (let bz = -8; bz <= 8; bz += 8) {
-          const color = buildingColors[Math.floor(Math.abs(zPos + bz) % buildingColors.length)];
-          const height = 14 + Math.random() * 6;
-          const bGeo = new THREE.BoxGeometry(6, height, 7.5);
-          const bMat = new THREE.MeshStandardMaterial({ color, roughness: 0.6 });
-          const building = new THREE.Mesh(bGeo, bMat);
-          building.position.set(bx, height / 2, bz);
-          group.add(building);
-
-          const windowMat = new THREE.MeshBasicMaterial({ color: 0xFFF79A });
-          for (let wy = 3; wy < height - 2; wy += 3) {
-            const win = new THREE.Mesh(new THREE.BoxGeometry(sideIdx === 0 ? 0.1 : 1.2, 1.4, 1.2), windowMat);
-            win.position.set(sideIdx === 0 ? 3.01 : -3.01, wy, bz);
-            group.add(win);
-          }
+      // Zoo enclosures, trees, and animals on both sides
+      [-1, 1].forEach((side) => {
+        const sideX = side * 14;
+        this.createFence(group, sideX, 0);
+        for (let tz = -8; tz <= 8; tz += 4) {
+          if (Math.random() > 0.3) this.createTree(group, sideX + (Math.random() - 0.5) * 4, tz + (Math.random() - 0.5) * 2);
+        }
+        for (let tz = -6; tz <= 6; tz += 6) {
+          const animalType = Math.floor(Math.random() * 5);
+          this.createAnimal(group, sideX + (Math.random() - 0.5) * 3, tz, animalType);
+        }
+        for (let tz = -8; tz <= 8; tz += 3) {
+          if (Math.random() > 0.5) this.createBush(group, sideX + (Math.random() - 0.5) * 5, tz);
         }
       });
 
-      const gantryMat = new THREE.MeshStandardMaterial({ color: 0x168DAB });
-      const arch = new THREE.Mesh(new THREE.BoxGeometry(16, 0.4, 0.4), gantryMat);
+      // Wooden archway with vines
+      const archMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.7 });
+      const arch = new THREE.Mesh(new THREE.BoxGeometry(18, 0.5, 0.5), archMat);
       arch.position.set(0, 6.5, 0);
       group.add(arch);
-
-      [-7.5, 7.5].forEach(px => {
-        const pole = new THREE.Mesh(new THREE.BoxGeometry(0.4, 6.5, 0.4), gantryMat);
+      [-8, 8].forEach(px => {
+        const pole = new THREE.Mesh(new THREE.BoxGeometry(0.5, 6.5, 0.5), archMat);
         pole.position.set(px, 3.25, 0);
         group.add(pole);
       });
+      const vineMat = new THREE.MeshStandardMaterial({ color: 0x228B22 });
+      for (let vx = -7; vx <= 7; vx += 2) {
+        const vine = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1 + Math.random(), 0.1), vineMat);
+        vine.position.set(vx, 6.0, 0);
+        group.add(vine);
+      }
 
-      const wireMat = new THREE.MeshBasicMaterial({ color: 0x355A65 });
-      LANES.forEach(laneX => {
-        const wire = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 20), wireMat);
-        wire.position.set(laneX, 6.2, 0);
-        group.add(wire);
-      });
+      // Flying birds
+      const birdMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+      for (let i = 0; i < 3; i++) {
+        const bird = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.1, 0.15), birdMat);
+        bird.add(body);
+        [-0.2, 0.2].forEach(wx => {
+          const wing = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.02, 0.1), birdMat);
+          wing.position.set(wx, 0.05, 0);
+          bird.add(wing);
+        });
+        bird.position.set(
+          (Math.random() - 0.5) * 20,
+          5 + Math.random() * 3,
+          (Math.random() - 0.5) * 15
+        );
+        group.add(bird);
+      }
+
+      // Zoo sign
+      const signMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.7 });
+      const signPost = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.5, 6), signMat);
+      signPost.position.set(10, 1.25, -5);
+      group.add(signPost);
+      const signBoard = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.0, 0.1), new THREE.MeshStandardMaterial({ color: 0xFFD82E, roughness: 0.5 }));
+      signBoard.position.set(10, 2.8, -5);
+      group.add(signBoard);
 
       return group;
+    }
+
+    createFence(group, x, z) {
+      const fenceMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.8 });
+      for (let fz = -9; fz <= 9; fz += 1.5) {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.2, 0.15), fenceMat);
+        post.position.set(x, 0.6, fz);
+        group.add(post);
+      }
+      [-0.3, 0.3].forEach(yOff => {
+        const rail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 18), fenceMat);
+        rail.position.set(x, 0.6 + yOff + 0.3, 0);
+        group.add(rail);
+      });
+    }
+
+    createTree(group, x, z) {
+      const trunkMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.8 });
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 2.5, 8), trunkMat);
+      trunk.position.set(x, 1.25, z);
+      group.add(trunk);
+      const leafMat = new THREE.MeshStandardMaterial({ color: 0x228B22, roughness: 0.7 });
+      const leaves = new THREE.Mesh(new THREE.SphereGeometry(1.2, 8, 8), leafMat);
+      leaves.position.set(x, 3.0, z);
+      group.add(leaves);
+    }
+
+    createBush(group, x, z) {
+      const bushMat = new THREE.MeshStandardMaterial({ color: 0x2E8B57, roughness: 0.8 });
+      const bush = new THREE.Mesh(new THREE.SphereGeometry(0.5 + Math.random() * 0.3, 6, 6), bushMat);
+      bush.position.set(x, 0.3, z);
+      group.add(bush);
+    }
+
+    createAnimal(group, x, z, type) {
+      const animal = new THREE.Group();
+      animal.position.set(x, 0, z);
+
+      if (type === 0) {
+        // Elephant
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.8 });
+        const body = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.2, 2.0), bodyMat);
+        body.position.y = 0.8;
+        animal.add(body);
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), bodyMat);
+        head.position.set(0, 1.2, 1.2);
+        animal.add(head);
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.15, 0.8, 6), bodyMat);
+        trunk.position.set(0, 0.8, 1.6);
+        trunk.rotation.x = Math.PI / 2;
+        animal.add(trunk);
+        [-0.5, 0.5].forEach(ex => {
+          const ear = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.6, 0.4), bodyMat);
+          ear.position.set(ex, 1.3, 1.0);
+          animal.add(ear);
+        });
+      } else if (type === 1) {
+        // Giraffe
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0xDAA520, roughness: 0.7 });
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.0, 1.5), bodyMat);
+        body.position.y = 1.5;
+        animal.add(body);
+        const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 2.0, 6), bodyMat);
+        neck.position.set(0, 2.8, 0.5);
+        animal.add(neck);
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.6), bodyMat);
+        head.position.set(0, 3.8, 0.5);
+        animal.add(head);
+        const spotMat = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+        for (let i = 0; i < 4; i++) {
+          const spot = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.2, 0.2), spotMat);
+          spot.position.set(0, 1.2 + i * 0.3, 0);
+          animal.add(spot);
+        }
+      } else if (type === 2) {
+        // Zebra
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 });
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 1.4), bodyMat);
+        body.position.y = 0.8;
+        animal.add(body);
+        const stripeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+        for (let i = 0; i < 3; i++) {
+          const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.15, 1.42), stripeMat);
+          stripe.position.set(0, 0.5 + i * 0.3, 0);
+          animal.add(stripe);
+        }
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.5, 0.6), bodyMat);
+        head.position.set(0, 1.3, 0.8);
+        animal.add(head);
+      } else if (type === 3) {
+        // Lion
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0xDAA520, roughness: 0.7 });
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.8, 1.6), bodyMat);
+        body.position.y = 0.6;
+        animal.add(body);
+        const maneMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.9 });
+        const mane = new THREE.Mesh(new THREE.SphereGeometry(0.5, 8, 8), maneMat);
+        mane.position.set(0, 1.0, 0.9);
+        animal.add(mane);
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), bodyMat);
+        head.position.set(0, 1.0, 1.0);
+        animal.add(head);
+      } else {
+        // Monkey
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.8 });
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.3, 8, 8), bodyMat);
+        body.position.y = 0.5;
+        animal.add(body);
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), bodyMat);
+        head.position.set(0, 0.8, 0.1);
+        animal.add(head);
+      }
+
+      group.add(animal);
     }
 
     // ----------------------------------------------------------------------
@@ -628,6 +859,7 @@
       this.state = 'READY';
       this.showOverlay(this.overlayReady);
       this.resetSimulation();
+      this.updateCharacterHUD();
       this.startRenderLoop();
     }
 
@@ -707,6 +939,12 @@
       this.nextSpawnZ = -25;
 
       this.powerups = { magnet: 0, shield: false, mult2x: 0, hover: 0 };
+      this.shieldRechargeTimer = 0;
+
+      // TITAN REX: Start with shield
+      if (this.characterPerks.startWithShield) {
+        this.powerups.shield = true;
+      }
       this.updatePowerupHUD();
 
       this.obstacles.forEach(o => this.scene.remove(o.mesh));
@@ -765,18 +1003,31 @@
 
     updateSimulation(delta) {
       this.elapsedActiveTime += delta;
-      this.speed = Math.min(STARTING_SPEED + this.elapsedActiveTime * SPEED_ACCEL, MAX_SPEED);
+      const speedMult = this.characterPerks.speedMultiplier || 1;
+      this.speed = Math.min((STARTING_SPEED + this.elapsedActiveTime * SPEED_ACCEL) * speedMult, MAX_SPEED * speedMult);
 
       // Power-up Timers
       if (this.powerups.magnet > 0) this.powerups.magnet -= delta;
       if (this.powerups.mult2x > 0) this.powerups.mult2x -= delta;
       if (this.powerups.hover > 0) this.powerups.hover -= delta;
+
+      // TITAN REX: Shield recharge
+      if (this.characterPerks.shieldRecharge && !this.powerups.shield) {
+        this.shieldRechargeTimer += delta;
+        if (this.shieldRechargeTimer >= this.characterPerks.shieldRecharge) {
+          this.powerups.shield = true;
+          this.shieldRechargeTimer = 0;
+          audio.playPowerup();
+        }
+      }
       this.updatePowerupHUD();
 
       const mult = this.powerups.mult2x > 0 ? 2 : 1;
+      const distMult = this.characterPerks.distanceMultiplier || 1;
       const moveDistance = this.speed * delta;
-      this.distance += moveDistance * mult;
-      this.score = Math.floor(this.distance) + (this.coinsCollected * 10 * mult);
+      this.distance += moveDistance * mult * distMult;
+      const scoreMult = this.characterPerks.scoreMultiplier || 1;
+      this.score = Math.floor((this.distance + (this.coinsCollected * 10 * mult)) * scoreMult);
 
       this.hudScore.textContent = String(this.score).padStart(6, '0');
       this.hudDistance.textContent = `${this.distance.toFixed(1)} m`;
@@ -1277,10 +1528,10 @@
             item.collected = true;
             audio.playPowerup();
 
-            if (item.pType === TYPE_POWER_MAGNET) this.powerups.magnet = 8;
+            if (item.pType === TYPE_POWER_MAGNET) this.powerups.magnet = this.characterPerks.magnetDuration || 8;
             if (item.pType === TYPE_POWER_SHIELD) this.powerups.shield = true;
             if (item.pType === TYPE_POWER_2X) this.powerups.mult2x = 10;
-            if (item.pType === TYPE_POWER_HOVER) this.powerups.hover = 6;
+            if (item.pType === TYPE_POWER_HOVER) this.powerups.hover = this.characterPerks.hoverDuration || 6;
 
             this.updatePowerupHUD();
             this.scene.remove(item.mesh);
@@ -1303,8 +1554,9 @@
         coin.mesh.position.y = 1.1 + Math.sin(this.elapsedActiveTime * 4 + coin.bobOffset) * 0.12;
 
         if (this.powerups.magnet > 0 && !coin.collected) {
+          const magnetRange = this.characterPerks.magnetRange || 12;
           const distToPlayer = Math.hypot(this.playerX - coin.x, coin.z);
-          if (distToPlayer < 12) {
+          if (distToPlayer < magnetRange) {
             coin.x += (this.playerX - coin.x) * 0.2;
             coin.z += (this.playerZ - coin.z) * 0.2;
           }
@@ -1316,7 +1568,7 @@
           const distToPlayer = Math.hypot(this.playerX - coin.x, this.playerY + 0.8 - coin.mesh.position.y, coin.z);
           if (distToPlayer < 1.1) {
             coin.collected = true;
-            const mult = this.powerups.mult2x > 0 ? 2 : 1;
+            const mult = (this.powerups.mult2x > 0 ? 2 : 1) * (this.characterPerks.coinMultiplier || 1);
             this.coinsCollected += mult;
             this.hudCoins.textContent = this.coinsCollected;
             audio.playCoin();

@@ -344,6 +344,13 @@
           <button class="hud-arcade-btn" id="btn-game-mute" title="Toggle Sound">
             <svg id="mute-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
           </button>
+          <div class="hud-char-info" id="hud-char-badge" title="Active Runner & Perk">
+            <span class="hud-char-icon" id="hud-char-icon">🎧</span>
+            <div class="hud-char-details">
+              <span class="hud-char-name-text" id="hud-char-name">PILOT VEX</span>
+              <span class="hud-char-perk-text" id="hud-char-perk">⚖️ +10% BASE SCORE</span>
+            </div>
+          </div>
         </div>
 
         <div class="hud-score-card">
@@ -373,6 +380,68 @@
     <div class="game-screen-overlay active" id="overlay-ready">
       <h1 class="game-arcade-title">RAILWAY RUNNER</h1>
       <p class="game-arcade-subtitle">3D CITY TRACK RUNNER</p>
+
+      <!-- 5-CHARACTER SELECTION SYSTEM -->
+      <div class="char-selector-wrapper">
+        <div class="char-selector-header">SELECT PILOT &amp; DISTINCT PERK</div>
+        <div class="char-grid" id="char-select-grid">
+          <!-- Char 1 -->
+          <div class="char-card selected" data-char="vex">
+            <div class="char-avatar-box">🎧</div>
+            <div class="char-name">PILOT VEX</div>
+            <div class="char-class">CYBER RUNNER</div>
+            <div class="char-perk-badge">
+              <strong>BALANCED PILOT</strong>
+              <span>+10% Bonus Base Score</span>
+            </div>
+            <button class="char-select-btn">EQUIPPED</button>
+          </div>
+          <!-- Char 2 -->
+          <div class="char-card" data-char="nova">
+            <div class="char-avatar-box">🥷</div>
+            <div class="char-name">NOVA STRIKE</div>
+            <div class="char-class">NEON SHADOW</div>
+            <div class="char-perk-badge">
+              <strong>MAGNET MASTER</strong>
+              <span>+50% Magnet Duration &amp; Range</span>
+            </div>
+            <button class="char-select-btn">SELECT</button>
+          </div>
+          <!-- Char 3 -->
+          <div class="char-card" data-char="aria">
+            <div class="char-avatar-box">⚡</div>
+            <div class="char-name">ARIA BLITZ</div>
+            <div class="char-class">HYPER SPEEDSTER</div>
+            <div class="char-perk-badge">
+              <strong>HYPER VELOCITY</strong>
+              <span>+20% Speed &amp; 1.5x Distance Score</span>
+            </div>
+            <button class="char-select-btn">SELECT</button>
+          </div>
+          <!-- Char 4 -->
+          <div class="char-card" data-char="titan">
+            <div class="char-avatar-box">🤖</div>
+            <div class="char-name">TITAN REX</div>
+            <div class="char-class">CYBER MECH</div>
+            <div class="char-perk-badge">
+              <strong>IRON SHIELD</strong>
+              <span>Auto 1st Shield &amp; 30s Recharge</span>
+            </div>
+            <button class="char-select-btn">SELECT</button>
+          </div>
+          <!-- Char 5 -->
+          <div class="char-card" data-char="zephyr">
+            <div class="char-avatar-box">🔮</div>
+            <div class="char-name">ZEPHYR VOID</div>
+            <div class="char-class">METAVERSE PHANTOM</div>
+            <div class="char-perk-badge">
+              <strong>COIN ALCHEMIST</strong>
+              <span>2x Gold Coins &amp; +25% Hover</span>
+            </div>
+            <button class="char-select-btn">SELECT</button>
+          </div>
+        </div>
+      </div>
 
       <div class="controls-grid" style="max-width: 520px; margin-bottom: 30px;">
         <div class="control-card" style="background: rgba(7, 143, 189, 0.3); border: 1px solid #54D3F5;">
