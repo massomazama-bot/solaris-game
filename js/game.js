@@ -68,7 +68,6 @@
       icon: '🎧',
       perkName: 'BALANCED PILOT',
       perkDesc: '+10% Bonus Base Score',
-      sprite: 'assets/char_jake.jpg',   // Billboard sprite image
       colors: { jacket: 0x168DAB, patch: 0xFFF79A, hood: 0xF5E6D3, visor: 0xE84936, pants: 0x2C4E6F, shoes: 0xFFFFFF, arms: 0x168DAB },
       perks: { scoreMultiplier: 1.1 }
     },
@@ -79,7 +78,6 @@
       icon: '🥷',
       perkName: 'MAGNET MASTER',
       perkDesc: '+50% Magnet Duration & Range',
-      sprite: 'assets/char_nova.jpg',   // Billboard sprite image
       colors: { jacket: 0x6A327D, patch: 0x00F0FF, hood: 0x100E18, visor: 0x00F0FF, pants: 0x1A1A2E, shoes: 0x6A327D, arms: 0x6A327D },
       perks: { magnetDuration: 12, magnetRange: 18 }
     },
@@ -90,7 +88,6 @@
       icon: '⚡',
       perkName: 'HYPER VELOCITY',
       perkDesc: '+20% Speed & 1.5x Distance Score',
-      sprite: 'assets/char_aria.jpg',   // Billboard sprite image
       colors: { jacket: 0xFFD82E, patch: 0xFF145B, hood: 0xFF8C00, visor: 0xFFFFFF, pants: 0x1B2A4A, shoes: 0xFFD82E, arms: 0xFFD82E },
       perks: { speedMultiplier: 1.2, distanceMultiplier: 1.5 }
     },
@@ -101,7 +98,6 @@
       icon: '🤖',
       perkName: 'IRON SHIELD',
       perkDesc: 'Auto 1st Shield & 30s Recharge',
-      sprite: null,   // 3D geometry model
       colors: { jacket: 0x6E7B8B, patch: 0xFF2222, hood: 0x3A4550, visor: 0xFF2222, pants: 0x1A1A2A, shoes: 0x5A6370, arms: 0x6E7B8B },
       perks: { startWithShield: true, shieldRecharge: 30 }
     },
@@ -112,7 +108,6 @@
       icon: '🔮',
       perkName: 'COIN ALCHEMIST',
       perkDesc: '2x Gold Coins & +25% Hover',
-      sprite: null,   // 3D geometry model
       colors: { jacket: 0x2ECC71, patch: 0x9B59B6, hood: 0xA8E6CF, visor: 0x9B59B6, pants: 0x1A5C30, shoes: 0x2ECC71, arms: 0x2ECC71 },
       perks: { coinMultiplier: 2, hoverDuration: 7.5 }
     }
@@ -358,7 +353,6 @@
       this.leftLeg = null;
       this.rightLeg = null;
       this.shadowMesh = null;
-      this.spritePlane = null;  // Billboard sprite plane (for sprite-mode characters)
       this.zephyrRune = null;   // Zephyr Void animated rune orb
       this.playerBox = new THREE.Box3();
       this.animId = null;
@@ -452,67 +446,182 @@
       this.shadowMesh.position.y = 0.02;
       this.scene.add(this.shadowMesh);
 
-      if (char.sprite) {
-        // ---- BILLBOARD SPRITE MODE (Jake, Nova, Aria) ----
-        // Load texture and create a flat plane that always faces camera
-        const loader = new THREE.TextureLoader();
-        const group = new THREE.Group();
+      // ---- 3D GEOMETRY MODE ----
+      const c = char.colors;
+      const group = new THREE.Group();
 
-        // Placeholder invisible box for collision (same hitbox as before)
-        const hitboxGeo = new THREE.BoxGeometry(0.7, 2.0, 0.5);
-        const hitboxMat = new THREE.MeshBasicMaterial({ visible: false });
-        const hitbox = new THREE.Mesh(hitboxGeo, hitboxMat);
-        hitbox.position.y = 1.0;
-        group.add(hitbox);
+      if (this.selectedCharacter === 'vex') {
+        // ---- PILOT VEX: Cyber Runner ----
+        const jacketMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.5 });
+        const jacket = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.5), jacketMat);
+        jacket.position.y = 1.05;
+        group.add(jacket);
 
-        // Sprite plane — 1.6 units wide, 2.6 units tall
-        const spritePlane = new THREE.PlaneGeometry(1.6, 2.6);
-        const spriteMat = new THREE.MeshBasicMaterial({
-          transparent: true,
-          alphaTest: 0.1,
-          side: THREE.FrontSide
-        });
-        this.spritePlane = new THREE.Mesh(spritePlane, spriteMat);
-        this.spritePlane.position.y = 1.3;
+        const patch = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.05), new THREE.MeshStandardMaterial({ color: c.patch }));
+        patch.position.set(0, 1.1, 0.26);
+        group.add(patch);
 
-        loader.load(
-          char.sprite,
-          (texture) => {
-            spriteMat.map = texture;
-            spriteMat.needsUpdate = true;
-          },
-          undefined,
-          () => {
-            // Fallback: color the plane if texture fails to load
-            spriteMat.color.set(char.colors.jacket);
-          }
-        );
+        const hood = new THREE.Mesh(new THREE.SphereGeometry(0.48, 16, 16), new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.6 }));
+        hood.position.set(0, 1.7, 0);
+        group.add(hood);
 
-        group.add(this.spritePlane);
+        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.08, 0.3), new THREE.MeshStandardMaterial({ color: c.visor }));
+        visor.position.set(0, 1.65, -0.4);
+        group.add(visor);
 
-        // Shield bubble
-        const shieldGeo = new THREE.SphereGeometry(1.2, 16, 16);
-        const shieldMat = new THREE.MeshBasicMaterial({
-          color: 0x00F0FF, transparent: true, opacity: 0.4, wireframe: true
-        });
-        this.shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
-        this.shieldMesh.position.y = 1.1;
-        this.shieldMesh.visible = false;
-        group.add(this.shieldMesh);
+        const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.6 });
+        this.leftLeg = new THREE.Group();
+        const ll = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.65, 0.26), pantsMat);
+        ll.position.y = -0.32;
+        this.leftLeg.add(ll);
+        this.leftLeg.position.set(-0.22, 0.65, 0);
+        group.add(this.leftLeg);
 
-        this.playerMesh = group;
-        this.leftLeg = null;
-        this.rightLeg = null;
-        this.leftArm = null;
-        this.rightArm = null;
-        this.scene.add(this.playerMesh);
+        this.rightLeg = new THREE.Group();
+        const rl = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.65, 0.26), pantsMat);
+        rl.position.y = -0.32;
+        this.rightLeg.add(rl);
+        this.rightLeg.position.set(0.22, 0.65, 0);
+        group.add(this.rightLeg);
 
-      } else {
-        // ---- 3D GEOMETRY MODE (Titan Rex, Zephyr Void) ----
-        const c = char.colors;
-        const group = new THREE.Group();
+        const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.2 });
+        const sl = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.45), shoeMat);
+        sl.position.set(0, -0.65, -0.05);
+        this.leftLeg.add(sl);
+        const sr = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.45), shoeMat);
+        sr.position.set(0, -0.65, -0.05);
+        this.rightLeg.add(sr);
 
-        if (this.selectedCharacter === 'titan') {
+        const armMat = new THREE.MeshStandardMaterial({ color: c.arms });
+        this.leftArm = new THREE.Group();
+        const la = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 0.2), armMat);
+        la.position.y = -0.3;
+        this.leftArm.add(la);
+        this.leftArm.position.set(-0.45, 1.3, 0);
+        group.add(this.leftArm);
+
+        this.rightArm = new THREE.Group();
+        const ra = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 0.2), armMat);
+        ra.position.y = -0.3;
+        this.rightArm.add(ra);
+        this.rightArm.position.set(0.45, 1.3, 0);
+        group.add(this.rightArm);
+
+      } else if (this.selectedCharacter === 'nova') {
+        // ---- NOVA STRIKE: Neon Shadow ----
+        const jacketMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.4, metalness: 0.3 });
+        const jacket = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.92, 0.52), jacketMat);
+        jacket.position.y = 1.05;
+        group.add(jacket);
+
+        const patch = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.05), new THREE.MeshBasicMaterial({ color: c.patch }));
+        patch.position.set(0, 1.1, 0.27);
+        group.add(patch);
+
+        const hood = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.5 }));
+        hood.position.set(0, 1.72, 0);
+        group.add(hood);
+
+        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.3), new THREE.MeshBasicMaterial({ color: c.visor }));
+        visor.position.set(0, 1.68, -0.4);
+        group.add(visor);
+
+        const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.5 });
+        this.leftLeg = new THREE.Group();
+        const ll = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.68, 0.28), pantsMat);
+        ll.position.y = -0.34;
+        this.leftLeg.add(ll);
+        this.leftLeg.position.set(-0.24, 0.68, 0);
+        group.add(this.leftLeg);
+
+        this.rightLeg = new THREE.Group();
+        const rl = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.68, 0.28), pantsMat);
+        rl.position.y = -0.34;
+        this.rightLeg.add(rl);
+        this.rightLeg.position.set(0.24, 0.68, 0);
+        group.add(this.rightLeg);
+
+        const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.3 });
+        const sl = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.26, 0.48), shoeMat);
+        sl.position.set(0, -0.68, -0.05);
+        this.leftLeg.add(sl);
+        const sr = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.26, 0.48), shoeMat);
+        sr.position.set(0, -0.68, -0.05);
+        this.rightLeg.add(sr);
+
+        const armMat = new THREE.MeshStandardMaterial({ color: c.arms });
+        this.leftArm = new THREE.Group();
+        const la = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.62, 0.22), armMat);
+        la.position.y = -0.31;
+        this.leftArm.add(la);
+        this.leftArm.position.set(-0.48, 1.32, 0);
+        group.add(this.leftArm);
+
+        this.rightArm = new THREE.Group();
+        const ra = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.62, 0.22), armMat);
+        ra.position.y = -0.31;
+        this.rightArm.add(ra);
+        this.rightArm.position.set(0.48, 1.32, 0);
+        group.add(this.rightArm);
+
+      } else if (this.selectedCharacter === 'aria') {
+        // ---- ARIA BLITZ: Hyper Speedster ----
+        const jacketMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.3, metalness: 0.4 });
+        const jacket = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.88, 0.48), jacketMat);
+        jacket.position.y = 1.02;
+        group.add(jacket);
+
+        const patch = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.38, 0.05), new THREE.MeshBasicMaterial({ color: c.patch }));
+        patch.position.set(0, 1.08, 0.25);
+        group.add(patch);
+
+        const hood = new THREE.Mesh(new THREE.SphereGeometry(0.46, 16, 16), new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.4 }));
+        hood.position.set(0, 1.68, 0);
+        group.add(hood);
+
+        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.08, 0.28), new THREE.MeshBasicMaterial({ color: c.visor }));
+        visor.position.set(0, 1.62, -0.38);
+        group.add(visor);
+
+        const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.4 });
+        this.leftLeg = new THREE.Group();
+        const ll = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.62, 0.24), pantsMat);
+        ll.position.y = -0.31;
+        this.leftLeg.add(ll);
+        this.leftLeg.position.set(-0.2, 0.62, 0);
+        group.add(this.leftLeg);
+
+        this.rightLeg = new THREE.Group();
+        const rl = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.62, 0.24), pantsMat);
+        rl.position.y = -0.31;
+        this.rightLeg.add(rl);
+        this.rightLeg.position.set(0.2, 0.62, 0);
+        group.add(this.rightLeg);
+
+        const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.2 });
+        const sl = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.22, 0.42), shoeMat);
+        sl.position.set(0, -0.62, -0.05);
+        this.leftLeg.add(sl);
+        const sr = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.22, 0.42), shoeMat);
+        sr.position.set(0, -0.62, -0.05);
+        this.rightLeg.add(sr);
+
+        const armMat = new THREE.MeshStandardMaterial({ color: c.arms });
+        this.leftArm = new THREE.Group();
+        const la = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.58, 0.18), armMat);
+        la.position.y = -0.29;
+        this.leftArm.add(la);
+        this.leftArm.position.set(-0.42, 1.28, 0);
+        group.add(this.leftArm);
+
+        this.rightArm = new THREE.Group();
+        const ra = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.58, 0.18), armMat);
+        ra.position.y = -0.29;
+        this.rightArm.add(ra);
+        this.rightArm.position.set(0.42, 1.28, 0);
+        group.add(this.rightArm);
+
+      } else if (this.selectedCharacter === 'titan') {
           // ---- TITAN REX: Mech Robot ----
           // Chest/torso — wide armored plate
           const torso = new THREE.Mesh(
@@ -698,7 +807,6 @@
         this.shieldMesh.visible = false;
         group.add(this.shieldMesh);
 
-        this.spritePlane = null;
         this.playerMesh = group;
         this.scene.add(this.playerMesh);
       }
