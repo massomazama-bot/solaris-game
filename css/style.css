@@ -1374,8 +1374,24 @@ html, body {
 @media (max-width: 768px) {
   .left-rail { display: none; }
   .main-container { margin-left: 0; width: 100%; }
-  .cyber-header { padding: 0 20px; }
-  .header-nav { display: none; }
+  .cyber-header { padding: 0 12px; height: auto; min-height: 60px; flex-wrap: wrap; gap: 8px; }
+  .header-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    padding: 4px 0;
+  }
+  .nav-link {
+    font-size: 11px;
+    padding: 4px 0;
+  }
+  .nav-separator { display: none; }
+  .header-right { gap: 8px; }
+  .search-input { width: 100px; font-size: 11px; }
+  .btn-primary { font-size: 11px; padding: 8px 14px; }
   .hero-section { padding: 24px; }
   .hero-title { font-size: 64px; }
   .supporting-row { grid-template-columns: 1fr; }

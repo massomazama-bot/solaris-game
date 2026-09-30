@@ -68,6 +68,7 @@
       icon: '🎧',
       perkName: 'BALANCED PILOT',
       perkDesc: '+10% Bonus Base Score',
+      sprite: 'assets/char_jake.jpg',   // Billboard sprite image
       colors: { jacket: 0x168DAB, patch: 0xFFF79A, hood: 0xF5E6D3, visor: 0xE84936, pants: 0x2C4E6F, shoes: 0xFFFFFF, arms: 0x168DAB },
       perks: { scoreMultiplier: 1.1 }
     },
@@ -78,6 +79,7 @@
       icon: '🥷',
       perkName: 'MAGNET MASTER',
       perkDesc: '+50% Magnet Duration & Range',
+      sprite: 'assets/char_nova.jpg',   // Billboard sprite image
       colors: { jacket: 0x6A327D, patch: 0x00F0FF, hood: 0x100E18, visor: 0x00F0FF, pants: 0x1A1A2E, shoes: 0x6A327D, arms: 0x6A327D },
       perks: { magnetDuration: 12, magnetRange: 18 }
     },
@@ -88,6 +90,7 @@
       icon: '⚡',
       perkName: 'HYPER VELOCITY',
       perkDesc: '+20% Speed & 1.5x Distance Score',
+      sprite: 'assets/char_aria.jpg',   // Billboard sprite image
       colors: { jacket: 0xFFD82E, patch: 0xFF145B, hood: 0xFF8C00, visor: 0xFFFFFF, pants: 0x1B2A4A, shoes: 0xFFD82E, arms: 0xFFD82E },
       perks: { speedMultiplier: 1.2, distanceMultiplier: 1.5 }
     },
@@ -98,7 +101,8 @@
       icon: '🤖',
       perkName: 'IRON SHIELD',
       perkDesc: 'Auto 1st Shield & 30s Recharge',
-      colors: { jacket: 0x808080, patch: 0xFF0000, hood: 0x404040, visor: 0xFF0000, pants: 0x1A1A1A, shoes: 0x808080, arms: 0x808080 },
+      sprite: null,   // 3D geometry model
+      colors: { jacket: 0x6E7B8B, patch: 0xFF2222, hood: 0x3A4550, visor: 0xFF2222, pants: 0x1A1A2A, shoes: 0x5A6370, arms: 0x6E7B8B },
       perks: { startWithShield: true, shieldRecharge: 30 }
     },
     zephyr: {
@@ -108,10 +112,12 @@
       icon: '🔮',
       perkName: 'COIN ALCHEMIST',
       perkDesc: '2x Gold Coins & +25% Hover',
-      colors: { jacket: 0x79B34C, patch: 0x9B59B6, hood: 0xB8E6C8, visor: 0x9B59B6, pants: 0x2D5A27, shoes: 0x79B34C, arms: 0x79B34C },
+      sprite: null,   // 3D geometry model
+      colors: { jacket: 0x2ECC71, patch: 0x9B59B6, hood: 0xA8E6CF, visor: 0x9B59B6, pants: 0x1A5C30, shoes: 0x2ECC71, arms: 0x2ECC71 },
       perks: { coinMultiplier: 2, hoverDuration: 7.5 }
     }
   };
+
 
   // ------------------------------------------------------------------------
   // WEB AUDIO SYNTHESIZER
