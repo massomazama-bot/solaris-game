@@ -1306,6 +1306,61 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
+   MOBILE TOUCH CONTROLS
+   -------------------------------------------------------------------------- */
+.touch-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  width: 100%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.touch-row {
+  display: flex;
+  gap: 16px;
+  pointer-events: auto;
+}
+
+.touch-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(7, 143, 189, 0.7);
+  border: 2px solid #54D3F5;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.touch-btn:active {
+  background: rgba(255, 216, 46, 0.8);
+  border-color: #FFF79A;
+  transform: scale(0.92);
+}
+
+/* Show touch controls on mobile */
+@media (max-width: 768px), (pointer: coarse) {
+  .touch-controls {
+    display: flex;
+  }
+  .hud-hint-banner {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
    RESPONSIVE DESIGN
    -------------------------------------------------------------------------- */
 @media (max-width: 1199px) {

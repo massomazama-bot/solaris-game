@@ -773,6 +773,9 @@
         }
       });
 
+      // Touch controls for mobile
+      this.bindTouchControls();
+
       document.getElementById('btn-start-game').addEventListener('click', () => this.startCountdown());
       document.getElementById('btn-exit-game').addEventListener('click', () => this.exitToHome());
       document.getElementById('btn-game-pause').addEventListener('click', () => this.pause());
@@ -782,6 +785,113 @@
       document.getElementById('btn-pause-home').addEventListener('click', () => this.exitToHome());
       document.getElementById('btn-retry-game').addEventListener('click', () => this.resetAndStart());
       document.getElementById('btn-gameover-home').addEventListener('click', () => this.exitToHome());
+    }
+
+    bindTouchControls() {
+      const canvas = this.canvas;
+      if (!canvas) return;
+
+      // Prevent default touch behaviors on game view
+      document.getElementById('game-view').addEventListener('touchmove', (e) => {
+        if (this.state === 'RUNNING') e.preventDefault();
+      }, { passive: false });
+
+      document.getElementById('game-view').addEventListener('touchstart', (e) => {
+        if (this.state === 'RUNNING') e.preventDefault();
+      }, { passive: false });
+
+      // Prevent double-tap zoom
+      document.getElementById('game-view').addEventListener('dblclick', (e) => {
+        e.preventDefault();
+      });
+
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchStartTime = 0;
+
+      canvas.addEventListener('touchstart', (e) => {
+        if (this.state !== 'RUNNING') return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchStartTime = Date.now();
+      }, { passive: false });
+
+      canvas.addEventListener('touchend', (e) => {
+        if (this.state !== 'RUNNING') return;
+        e.preventDefault();
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+        const dt = Date.now() - touchStartTime;
+
+        const minSwipe = 30;
+        const maxTime = 500;
+
+        if (dt > maxTime) return;
+
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipe) {
+          if (dx > 0) {
+            if (this.targetLane < LANES.length - 1) this.targetLane++;
+          } else {
+            if (this.targetLane > 0) this.targetLane--;
+          }
+        } else if (Math.abs(dy) > minSwipe) {
+          if (dy < 0) {
+            if (!this.isJumping && !this.isSliding) {
+              this.isJumping = true;
+              this.jumpTimer = 0;
+              audio.playJump();
+            }
+          } else {
+            if (!this.isSliding && !this.isJumping) {
+              this.isSliding = true;
+              this.slideTimer = 0;
+              audio.playSlide();
+            }
+          }
+        }
+      }, { passive: false });
+
+      // On-screen touch buttons
+      const btnLeft = document.getElementById('btn-touch-left');
+      const btnRight = document.getElementById('btn-touch-right');
+      const btnJump = document.getElementById('btn-touch-jump');
+      const btnSlide = document.getElementById('btn-touch-slide');
+
+      if (btnLeft) {
+        btnLeft.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          if (this.state === 'RUNNING' && this.targetLane > 0) this.targetLane--;
+        }, { passive: false });
+      }
+      if (btnRight) {
+        btnRight.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          if (this.state === 'RUNNING' && this.targetLane < LANES.length - 1) this.targetLane++;
+        }, { passive: false });
+      }
+      if (btnJump) {
+        btnJump.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          if (this.state === 'RUNNING' && !this.isJumping && !this.isSliding) {
+            this.isJumping = true;
+            this.jumpTimer = 0;
+            audio.playJump();
+          }
+        }, { passive: false });
+      }
+      if (btnSlide) {
+        btnSlide.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          if (this.state === 'RUNNING' && !this.isSliding && !this.isJumping) {
+            this.isSliding = true;
+            this.slideTimer = 0;
+            audio.playSlide();
+          }
+        }, { passive: false });
+      }
     }
 
     handleKeyPress(code, event) {
