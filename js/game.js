@@ -9,34 +9,31 @@
   // ------------------------------------------------------------------------
   // CONSTANTS & GAME TUNING
   // ------------------------------------------------------------------------
-  const LANES = [-2.6, 0, 2.6]; // 3 Railway Lanes: Left (-1), Center (0), Right (+1)
-  const STARTING_SPEED = 11;     // 11 m/s
-  const MAX_SPEED = 24;          // 24 m/s
-  const SPEED_ACCEL = 0.5 / 12;  // Accelerates every 12s
-  const JUMP_DURATION = 0.75;    // ~750ms total jump arc
-  const JUMP_HEIGHT = 2.6;       // Peak elevation
-  const SLIDE_DURATION = 0.65;   // ~650ms slide crouch
-  const LANE_CHANGE_SPEED = 15.0; // Lerp speed for track changes
-  const SPAWN_ROW_SPACING = 11;   // Spacing between continuous hazard rows
+  const LANES = [-2.6, 0, 2.6];
+  const STARTING_SPEED = 11;
+  const MAX_SPEED = 24;
+  const SPEED_ACCEL = 0.5 / 12;
+  const JUMP_DURATION = 0.75;
+  const JUMP_HEIGHT = 2.6;
+  const SLIDE_DURATION = 0.65;
+  const LANE_CHANGE_SPEED = 15.0;
+  const SPAWN_ROW_SPACING = 11;
 
-  // Obstacle & Hazard Types
-  const TYPE_TRAM = 'tram';                // Stationary Tram
-  const TYPE_TRAIN_INCOMING = 'train_inc'; // MOVING Train speeding TOWARD player!
-  const TYPE_DRONE_INCOMING = 'drone_inc'; // MOVING Low Drone swooping toward torso!
-  const TYPE_BARREL_INCOMING = 'barrel_inc'; // MOVING Rolling Barrel!
-  const TYPE_CAR = 'car';                  // Parked Sports Car
-  const TYPE_ANIMAL = 'animal';            // Street Dog
-  const TYPE_LOW = 'low';                  // Low Barricade
-  const TYPE_GATE = 'gate';                // Overhead Gate
-  const TYPE_COIN = 'coin';                // Gold Coin
+  const TYPE_TRAM = 'tram';
+  const TYPE_TRAIN_INCOMING = 'train_inc';
+  const TYPE_DRONE_INCOMING = 'drone_inc';
+  const TYPE_BARREL_INCOMING = 'barrel_inc';
+  const TYPE_CAR = 'car';
+  const TYPE_ANIMAL = 'animal';
+  const TYPE_LOW = 'low';
+  const TYPE_GATE = 'gate';
+  const TYPE_COIN = 'coin';
 
-  // Power-up Types
-  const TYPE_POWER_MAGNET = 'p_magnet'; // 🧲 Attracts coins
-  const TYPE_POWER_SHIELD = 'p_shield'; // 🛡️ Absorbs 1 hit
-  const TYPE_POWER_2X = 'p_2x';         // ⚡ Double score & coins
-  const TYPE_POWER_HOVER = 'p_hover';   // 🛹 Hover over low hazards
+  const TYPE_POWER_MAGNET = 'p_magnet';
+  const TYPE_POWER_SHIELD = 'p_shield';
+  const TYPE_POWER_2X = 'p_2x';
+  const TYPE_POWER_HOVER = 'p_hover';
 
-  // High-Density Validated Obstacle Patterns
   const OBSTACLE_PATTERNS = [
     [TYPE_TRAIN_INCOMING, null, null],
     [null, TYPE_TRAIN_INCOMING, null],
@@ -113,7 +110,6 @@
     }
   };
 
-
   // ------------------------------------------------------------------------
   // WEB AUDIO SYNTHESIZER
   // ------------------------------------------------------------------------
@@ -178,19 +174,15 @@
       const osc1 = this.ctx.createOscillator();
       const osc2 = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-
       osc1.type = 'triangle';
       osc2.type = 'sine';
       osc1.frequency.setValueAtTime(987.77, now);
       osc2.frequency.setValueAtTime(1318.51, now + 0.06);
-
       gain.gain.setValueAtTime(0.35, now);
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-
       osc1.connect(gain);
       osc2.connect(gain);
       gain.connect(this.ctx.destination);
-
       osc1.start(now);
       osc1.stop(now + 0.12);
       osc2.start(now + 0.06);
@@ -221,19 +213,15 @@
       const osc1 = this.ctx.createOscillator();
       const osc2 = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-
       osc1.type = 'sawtooth';
       osc2.type = 'sawtooth';
       osc1.frequency.setValueAtTime(220, now);
       osc2.frequency.setValueAtTime(277, now);
-
       gain.gain.setValueAtTime(0.2, now);
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-
       osc1.connect(gain);
       osc2.connect(gain);
       gain.connect(this.ctx.destination);
-
       osc1.start(now);
       osc1.stop(now + 0.4);
       osc2.start(now);
@@ -279,7 +267,6 @@
   // ------------------------------------------------------------------------
   class RailwayRunnerEngine {
     constructor() {
-      // DOM Elements
       this.container = document.getElementById('game-view');
       this.canvas = document.getElementById('game-canvas');
       this.hudScore = document.getElementById('hud-score');
@@ -289,49 +276,37 @@
       this.hudPowerupBar = document.getElementById('hud-powerup-bar');
       this.btnMute = document.getElementById('btn-game-mute');
 
-      // Overlays
       this.overlayReady = document.getElementById('overlay-ready');
       this.overlayPause = document.getElementById('overlay-pause');
       this.overlayGameOver = document.getElementById('overlay-gameover');
       this.overlayCountdown = document.getElementById('game-countdown');
 
-      // State
-      this.state = 'IDLE'; // IDLE, READY, COUNTDOWN, RUNNING, PAUSED, GAMEOVER
-      this.currentLane = 1; // Center track index (0, 1, 2)
+      this.state = 'IDLE';
+      this.currentLane = 1;
       this.targetLane = 1;
       this.playerX = LANES[1];
       this.playerY = 0;
       this.playerZ = 0;
 
-      // Motion
       this.isJumping = false;
       this.jumpTimer = 0;
       this.isSliding = false;
       this.slideTimer = 0;
       this.runAnimTime = 0;
 
-      // Metrics
       this.distance = 0;
       this.coinsCollected = 0;
       this.score = 0;
       this.speed = STARTING_SPEED;
       this.elapsedActiveTime = 0;
 
-      // Power-up States
-      this.powerups = {
-        magnet: 0,
-        shield: false,
-        mult2x: 0,
-        hover: 0
-      };
+      this.powerups = { magnet: 0, shield: false, mult2x: 0, hover: 0 };
 
-      // Character & Perks
       this.selectedCharacter = localStorage.getItem('cyber_run_char') || 'vex';
       this.characterPerks = CHARACTERS[this.selectedCharacter].perks;
       this.characterColors = CHARACTERS[this.selectedCharacter].colors;
       this.shieldRechargeTimer = 0;
 
-      // World Pools
       this.trackSegments = [];
       this.obstacles = [];
       this.coins = [];
@@ -339,10 +314,8 @@
       this.particles = [];
       this.nextSpawnZ = -25;
 
-      // Key input state (hold protection)
       this.keysPressed = {};
 
-      // Three.js Setup
       this.scene = null;
       this.camera = null;
       this.renderer = null;
@@ -353,7 +326,7 @@
       this.leftLeg = null;
       this.rightLeg = null;
       this.shadowMesh = null;
-      this.zephyrRune = null;   // Zephyr Void animated rune orb
+      this.zephyrRune = null;
       this.playerBox = new THREE.Box3();
       this.animId = null;
       this.lastTime = 0;
@@ -363,9 +336,6 @@
       this.updateMuteIcon();
     }
 
-    // ----------------------------------------------------------------------
-    // THREE.JS SCENE SETUP
-    // ----------------------------------------------------------------------
     initThree() {
       if (typeof THREE === 'undefined') return;
 
@@ -434,7 +404,6 @@
 
       const char = CHARACTERS[this.selectedCharacter];
 
-      // ----- SHARED: Shadow plane on ground -----
       const shadowGeo = new THREE.PlaneGeometry(1.6, 0.6);
       const shadowMat = new THREE.MeshBasicMaterial({
         color: 0x000000,
@@ -446,374 +415,361 @@
       this.shadowMesh.position.y = 0.02;
       this.scene.add(this.shadowMesh);
 
-      // ---- 3D GEOMETRY MODE ----
       const c = char.colors;
       const group = new THREE.Group();
 
       if (this.selectedCharacter === 'vex') {
-        // ---- PILOT VEX: Cyber Runner ----
-        const jacketMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.5 });
-        const jacket = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.5), jacketMat);
-        jacket.position.y = 1.05;
-        group.add(jacket);
-
-        const patch = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.05), new THREE.MeshStandardMaterial({ color: c.patch }));
-        patch.position.set(0, 1.1, 0.26);
-        group.add(patch);
-
-        const hood = new THREE.Mesh(new THREE.SphereGeometry(0.48, 16, 16), new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.6 }));
-        hood.position.set(0, 1.7, 0);
-        group.add(hood);
-
-        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.08, 0.3), new THREE.MeshStandardMaterial({ color: c.visor }));
-        visor.position.set(0, 1.65, -0.4);
-        group.add(visor);
-
-        const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.6 });
-        this.leftLeg = new THREE.Group();
-        const ll = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.65, 0.26), pantsMat);
-        ll.position.y = -0.32;
-        this.leftLeg.add(ll);
-        this.leftLeg.position.set(-0.22, 0.65, 0);
-        group.add(this.leftLeg);
-
-        this.rightLeg = new THREE.Group();
-        const rl = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.65, 0.26), pantsMat);
-        rl.position.y = -0.32;
-        this.rightLeg.add(rl);
-        this.rightLeg.position.set(0.22, 0.65, 0);
-        group.add(this.rightLeg);
-
-        const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.2 });
-        const sl = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.45), shoeMat);
-        sl.position.set(0, -0.65, -0.05);
-        this.leftLeg.add(sl);
-        const sr = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.45), shoeMat);
-        sr.position.set(0, -0.65, -0.05);
-        this.rightLeg.add(sr);
-
-        const armMat = new THREE.MeshStandardMaterial({ color: c.arms });
-        this.leftArm = new THREE.Group();
-        const la = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 0.2), armMat);
-        la.position.y = -0.3;
-        this.leftArm.add(la);
-        this.leftArm.position.set(-0.45, 1.3, 0);
-        group.add(this.leftArm);
-
-        this.rightArm = new THREE.Group();
-        const ra = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 0.2), armMat);
-        ra.position.y = -0.3;
-        this.rightArm.add(ra);
-        this.rightArm.position.set(0.45, 1.3, 0);
-        group.add(this.rightArm);
-
+        this.buildVexModel(group, c);
       } else if (this.selectedCharacter === 'nova') {
-        // ---- NOVA STRIKE: Neon Shadow ----
-        const jacketMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.4, metalness: 0.3 });
-        const jacket = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.92, 0.52), jacketMat);
-        jacket.position.y = 1.05;
-        group.add(jacket);
-
-        const patch = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.05), new THREE.MeshBasicMaterial({ color: c.patch }));
-        patch.position.set(0, 1.1, 0.27);
-        group.add(patch);
-
-        const hood = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.5 }));
-        hood.position.set(0, 1.72, 0);
-        group.add(hood);
-
-        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.3), new THREE.MeshBasicMaterial({ color: c.visor }));
-        visor.position.set(0, 1.68, -0.4);
-        group.add(visor);
-
-        const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.5 });
-        this.leftLeg = new THREE.Group();
-        const ll = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.68, 0.28), pantsMat);
-        ll.position.y = -0.34;
-        this.leftLeg.add(ll);
-        this.leftLeg.position.set(-0.24, 0.68, 0);
-        group.add(this.leftLeg);
-
-        this.rightLeg = new THREE.Group();
-        const rl = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.68, 0.28), pantsMat);
-        rl.position.y = -0.34;
-        this.rightLeg.add(rl);
-        this.rightLeg.position.set(0.24, 0.68, 0);
-        group.add(this.rightLeg);
-
-        const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.3 });
-        const sl = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.26, 0.48), shoeMat);
-        sl.position.set(0, -0.68, -0.05);
-        this.leftLeg.add(sl);
-        const sr = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.26, 0.48), shoeMat);
-        sr.position.set(0, -0.68, -0.05);
-        this.rightLeg.add(sr);
-
-        const armMat = new THREE.MeshStandardMaterial({ color: c.arms });
-        this.leftArm = new THREE.Group();
-        const la = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.62, 0.22), armMat);
-        la.position.y = -0.31;
-        this.leftArm.add(la);
-        this.leftArm.position.set(-0.48, 1.32, 0);
-        group.add(this.leftArm);
-
-        this.rightArm = new THREE.Group();
-        const ra = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.62, 0.22), armMat);
-        ra.position.y = -0.31;
-        this.rightArm.add(ra);
-        this.rightArm.position.set(0.48, 1.32, 0);
-        group.add(this.rightArm);
-
+        this.buildNovaModel(group, c);
       } else if (this.selectedCharacter === 'aria') {
-        // ---- ARIA BLITZ: Hyper Speedster ----
-        const jacketMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.3, metalness: 0.4 });
-        const jacket = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.88, 0.48), jacketMat);
-        jacket.position.y = 1.02;
-        group.add(jacket);
-
-        const patch = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.38, 0.05), new THREE.MeshBasicMaterial({ color: c.patch }));
-        patch.position.set(0, 1.08, 0.25);
-        group.add(patch);
-
-        const hood = new THREE.Mesh(new THREE.SphereGeometry(0.46, 16, 16), new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.4 }));
-        hood.position.set(0, 1.68, 0);
-        group.add(hood);
-
-        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.08, 0.28), new THREE.MeshBasicMaterial({ color: c.visor }));
-        visor.position.set(0, 1.62, -0.38);
-        group.add(visor);
-
-        const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.4 });
-        this.leftLeg = new THREE.Group();
-        const ll = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.62, 0.24), pantsMat);
-        ll.position.y = -0.31;
-        this.leftLeg.add(ll);
-        this.leftLeg.position.set(-0.2, 0.62, 0);
-        group.add(this.leftLeg);
-
-        this.rightLeg = new THREE.Group();
-        const rl = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.62, 0.24), pantsMat);
-        rl.position.y = -0.31;
-        this.rightLeg.add(rl);
-        this.rightLeg.position.set(0.2, 0.62, 0);
-        group.add(this.rightLeg);
-
-        const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.2 });
-        const sl = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.22, 0.42), shoeMat);
-        sl.position.set(0, -0.62, -0.05);
-        this.leftLeg.add(sl);
-        const sr = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.22, 0.42), shoeMat);
-        sr.position.set(0, -0.62, -0.05);
-        this.rightLeg.add(sr);
-
-        const armMat = new THREE.MeshStandardMaterial({ color: c.arms });
-        this.leftArm = new THREE.Group();
-        const la = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.58, 0.18), armMat);
-        la.position.y = -0.29;
-        this.leftArm.add(la);
-        this.leftArm.position.set(-0.42, 1.28, 0);
-        group.add(this.leftArm);
-
-        this.rightArm = new THREE.Group();
-        const ra = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.58, 0.18), armMat);
-        ra.position.y = -0.29;
-        this.rightArm.add(ra);
-        this.rightArm.position.set(0.42, 1.28, 0);
-        group.add(this.rightArm);
-
+        this.buildAriaModel(group, c);
       } else if (this.selectedCharacter === 'titan') {
-          // ---- TITAN REX: Mech Robot ----
-          // Chest/torso — wide armored plate
-          const torso = new THREE.Mesh(
-            new THREE.BoxGeometry(0.95, 1.1, 0.65),
-            new THREE.MeshStandardMaterial({ color: c.jacket, metalness: 0.8, roughness: 0.3 })
-          );
-          torso.position.y = 1.1;
-          group.add(torso);
-
-          // Chest emblem
-          const emblem = new THREE.Mesh(
-            new THREE.BoxGeometry(0.35, 0.35, 0.05),
-            new THREE.MeshBasicMaterial({ color: 0xFF2222 })
-          );
-          emblem.position.set(0, 1.15, 0.33);
-          group.add(emblem);
-
-          // Shoulder pads
-          [-0.58, 0.58].forEach(sx => {
-            const pad = new THREE.Mesh(
-              new THREE.BoxGeometry(0.38, 0.32, 0.55),
-              new THREE.MeshStandardMaterial({ color: c.hood, metalness: 0.9 })
-            );
-            pad.position.set(sx, 1.5, 0);
-            group.add(pad);
-          });
-
-          // Head — helmet
-          const helmet = new THREE.Mesh(
-            new THREE.BoxGeometry(0.7, 0.65, 0.65),
-            new THREE.MeshStandardMaterial({ color: c.hood, metalness: 0.7, roughness: 0.3 })
-          );
-          helmet.position.y = 1.95;
-          group.add(helmet);
-
-          // Visor — glowing red eye strip
-          const visor = new THREE.Mesh(
-            new THREE.BoxGeometry(0.5, 0.14, 0.05),
-            new THREE.MeshBasicMaterial({ color: 0xFF0000 })
-          );
-          visor.position.set(0, 1.98, 0.33);
-          group.add(visor);
-
-          // Legs
-          const legMat = new THREE.MeshStandardMaterial({ color: c.pants, metalness: 0.6 });
-          this.leftLeg = new THREE.Group();
-          const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.75, 0.38), legMat);
-          lLeg.position.y = -0.37;
-          this.leftLeg.add(lLeg);
-          this.leftLeg.position.set(-0.28, 0.7, 0);
-          group.add(this.leftLeg);
-
-          this.rightLeg = new THREE.Group();
-          const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.75, 0.38), legMat);
-          rLeg.position.y = -0.37;
-          this.rightLeg.add(rLeg);
-          this.rightLeg.position.set(0.28, 0.7, 0);
-          group.add(this.rightLeg);
-
-          // Heavy boots
-          const bootMat = new THREE.MeshStandardMaterial({ color: c.shoes, metalness: 0.7 });
-          const bL = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.32, 0.56), bootMat);
-          bL.position.set(0, -0.75, -0.05);
-          this.leftLeg.add(bL);
-          const bR = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.32, 0.56), bootMat);
-          bR.position.set(0, -0.75, -0.05);
-          this.rightLeg.add(bR);
-
-          // Arms
-          const armMat = new THREE.MeshStandardMaterial({ color: c.arms, metalness: 0.7 });
-          this.leftArm = new THREE.Group();
-          const laM = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.65, 0.32), armMat);
-          laM.position.y = -0.32;
-          this.leftArm.add(laM);
-          this.leftArm.position.set(-0.63, 1.35, 0);
-          group.add(this.leftArm);
-
-          this.rightArm = new THREE.Group();
-          const raM = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.65, 0.32), armMat);
-          raM.position.y = -0.32;
-          this.rightArm.add(raM);
-          this.rightArm.position.set(0.63, 1.35, 0);
-          group.add(this.rightArm);
-
-        } else {
-          // ---- ZEPHYR VOID: Cosmic Phantom ----
-          const c = char.colors;
-
-          // Body — slightly translucent ghostly hoodie
-          const body = new THREE.Mesh(
-            new THREE.BoxGeometry(0.72, 0.95, 0.52),
-            new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.4, transparent: true, opacity: 0.9 })
-          );
-          body.position.y = 1.05;
-          group.add(body);
-
-          // Mystical rune patch
-          const rune = new THREE.Mesh(
-            new THREE.OctahedronGeometry(0.2),
-            new THREE.MeshBasicMaterial({ color: c.patch, wireframe: true })
-          );
-          rune.position.set(0, 1.15, 0.28);
-          group.add(rune);
-          this.zephyrRune = rune; // spin in update
-
-          // Head / hood — glowing
-          const head = new THREE.Mesh(
-            new THREE.SphereGeometry(0.46, 16, 16),
-            new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.5, transparent: true, opacity: 0.92 })
-          );
-          head.position.y = 1.72;
-          group.add(head);
-
-          // Glowing eyes
-          [-0.15, 0.15].forEach(ex => {
-            const eye = new THREE.Mesh(
-              new THREE.SphereGeometry(0.07, 8, 8),
-              new THREE.MeshBasicMaterial({ color: c.patch })
-            );
-            eye.position.set(ex, 1.75, 0.37);
-            group.add(eye);
-          });
-
-          // Pants — darker shade
-          const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.6, transparent: true, opacity: 0.85 });
-          this.leftLeg = new THREE.Group();
-          const ll = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.65, 0.26), pantsMat);
-          ll.position.y = -0.32;
-          this.leftLeg.add(ll);
-          this.leftLeg.position.set(-0.22, 0.65, 0);
-          group.add(this.leftLeg);
-
-          this.rightLeg = new THREE.Group();
-          const rl = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.65, 0.26), pantsMat);
-          rl.position.y = -0.32;
-          this.rightLeg.add(rl);
-          this.rightLeg.position.set(0.22, 0.65, 0);
-          group.add(this.rightLeg);
-
-          // Glowing boots
-          const bootMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.3 });
-          const sbL = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.45), bootMat);
-          sbL.position.set(0, -0.65, -0.05);
-          this.leftLeg.add(sbL);
-          const sbR = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.45), bootMat);
-          sbR.position.set(0, -0.65, -0.05);
-          this.rightLeg.add(sbR);
-
-          // Arms — ghostly
-          const armMat = new THREE.MeshStandardMaterial({ color: c.arms, transparent: true, opacity: 0.88 });
-          this.leftArm = new THREE.Group();
-          const la = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 0.2), armMat);
-          la.position.y = -0.3;
-          this.leftArm.add(la);
-          this.leftArm.position.set(-0.48, 1.3, 0);
-          group.add(this.leftArm);
-
-          this.rightArm = new THREE.Group();
-          const ra = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 0.2), armMat);
-          ra.position.y = -0.3;
-          this.rightArm.add(ra);
-          this.rightArm.position.set(0.48, 1.3, 0);
-          group.add(this.rightArm);
-
-          // Floating energy orbs (cosmetic)
-          [-0.9, 0.9].forEach(ox => {
-            const orb = new THREE.Mesh(
-              new THREE.IcosahedronGeometry(0.15, 1),
-              new THREE.MeshBasicMaterial({ color: c.patch, wireframe: true })
-            );
-            orb.position.set(ox, 1.2, 0);
-            group.add(orb);
-          });
-        }
-
-        // Shield bubble (shared)
-        const shieldGeo = new THREE.SphereGeometry(1.2, 16, 16);
-        const shieldMat = new THREE.MeshBasicMaterial({
-          color: 0x00F0FF, transparent: true, opacity: 0.4, wireframe: true
-        });
-        this.shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
-        this.shieldMesh.position.y = 1.0;
-        this.shieldMesh.visible = false;
-        group.add(this.shieldMesh);
-
-        this.playerMesh = group;
-        this.scene.add(this.playerMesh);
+        this.buildTitanModel(group, c);
+      } else {
+        this.buildZephyrModel(group, c);
       }
+
+      const shieldGeo = new THREE.SphereGeometry(1.2, 16, 16);
+      const shieldMat = new THREE.MeshBasicMaterial({
+        color: 0x00F0FF, transparent: true, opacity: 0.4, wireframe: true
+      });
+      this.shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+      this.shieldMesh.position.y = 1.0;
+      this.shieldMesh.visible = false;
+      group.add(this.shieldMesh);
+
+      this.playerMesh = group;
+      this.scene.add(this.playerMesh);
     }
 
+    buildVexModel(group, c) {
+      const jacketMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.5 });
+      const jacket = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.5), jacketMat);
+      jacket.position.y = 1.05;
+      group.add(jacket);
 
+      const patch = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.05), new THREE.MeshStandardMaterial({ color: c.patch }));
+      patch.position.set(0, 1.1, 0.26);
+      group.add(patch);
 
+      const hood = new THREE.Mesh(new THREE.SphereGeometry(0.48, 16, 16), new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.6 }));
+      hood.position.set(0, 1.7, 0);
+      group.add(hood);
+
+      const visor = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.08, 0.3), new THREE.MeshStandardMaterial({ color: c.visor }));
+      visor.position.set(0, 1.65, -0.4);
+      group.add(visor);
+
+      const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.6 });
+      this.leftLeg = new THREE.Group();
+      const ll = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.65, 0.26), pantsMat);
+      ll.position.y = -0.32;
+      this.leftLeg.add(ll);
+      this.leftLeg.position.set(-0.22, 0.65, 0);
+      group.add(this.leftLeg);
+
+      this.rightLeg = new THREE.Group();
+      const rl = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.65, 0.26), pantsMat);
+      rl.position.y = -0.32;
+      this.rightLeg.add(rl);
+      this.rightLeg.position.set(0.22, 0.65, 0);
+      group.add(this.rightLeg);
+
+      const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.2 });
+      const sl = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.45), shoeMat);
+      sl.position.set(0, -0.65, -0.05);
+      this.leftLeg.add(sl);
+      const sr = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.45), shoeMat);
+      sr.position.set(0, -0.65, -0.05);
+      this.rightLeg.add(sr);
+
+      const armMat = new THREE.MeshStandardMaterial({ color: c.arms });
+      this.leftArm = new THREE.Group();
+      const la = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 0.2), armMat);
+      la.position.y = -0.3;
+      this.leftArm.add(la);
+      this.leftArm.position.set(-0.45, 1.3, 0);
+      group.add(this.leftArm);
+
+      this.rightArm = new THREE.Group();
+      const ra = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 0.2), armMat);
+      ra.position.y = -0.3;
+      this.rightArm.add(ra);
+      this.rightArm.position.set(0.45, 1.3, 0);
+      group.add(this.rightArm);
+    }
+
+    buildNovaModel(group, c) {
+      const jacketMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.4, metalness: 0.3 });
+      const jacket = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.92, 0.52), jacketMat);
+      jacket.position.y = 1.05;
+      group.add(jacket);
+
+      const patch = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.05), new THREE.MeshBasicMaterial({ color: c.patch }));
+      patch.position.set(0, 1.1, 0.27);
+      group.add(patch);
+
+      const hood = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.5 }));
+      hood.position.set(0, 1.72, 0);
+      group.add(hood);
+
+      const visor = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.3), new THREE.MeshBasicMaterial({ color: c.visor }));
+      visor.position.set(0, 1.68, -0.4);
+      group.add(visor);
+
+      const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.5 });
+      this.leftLeg = new THREE.Group();
+      const ll = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.68, 0.28), pantsMat);
+      ll.position.y = -0.34;
+      this.leftLeg.add(ll);
+      this.leftLeg.position.set(-0.24, 0.68, 0);
+      group.add(this.leftLeg);
+
+      this.rightLeg = new THREE.Group();
+      const rl = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.68, 0.28), pantsMat);
+      rl.position.y = -0.34;
+      this.rightLeg.add(rl);
+      this.rightLeg.position.set(0.24, 0.68, 0);
+      group.add(this.rightLeg);
+
+      const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.3 });
+      const sl = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.26, 0.48), shoeMat);
+      sl.position.set(0, -0.68, -0.05);
+      this.leftLeg.add(sl);
+      const sr = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.26, 0.48), shoeMat);
+      sr.position.set(0, -0.68, -0.05);
+      this.rightLeg.add(sr);
+
+      const armMat = new THREE.MeshStandardMaterial({ color: c.arms });
+      this.leftArm = new THREE.Group();
+      const la = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.62, 0.22), armMat);
+      la.position.y = -0.31;
+      this.leftArm.add(la);
+      this.leftArm.position.set(-0.48, 1.32, 0);
+      group.add(this.leftArm);
+
+      this.rightArm = new THREE.Group();
+      const ra = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.62, 0.22), armMat);
+      ra.position.y = -0.31;
+      this.rightArm.add(ra);
+      this.rightArm.position.set(0.48, 1.32, 0);
+      group.add(this.rightArm);
+    }
+
+    buildAriaModel(group, c) {
+      const jacketMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.3, metalness: 0.4 });
+      const jacket = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.88, 0.48), jacketMat);
+      jacket.position.y = 1.02;
+      group.add(jacket);
+
+      const patch = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.38, 0.05), new THREE.MeshBasicMaterial({ color: c.patch }));
+      patch.position.set(0, 1.08, 0.25);
+      group.add(patch);
+
+      const hood = new THREE.Mesh(new THREE.SphereGeometry(0.46, 16, 16), new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.4 }));
+      hood.position.set(0, 1.68, 0);
+      group.add(hood);
+
+      const visor = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.08, 0.28), new THREE.MeshBasicMaterial({ color: c.visor }));
+      visor.position.set(0, 1.62, -0.38);
+      group.add(visor);
+
+      const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.4 });
+      this.leftLeg = new THREE.Group();
+      const ll = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.62, 0.24), pantsMat);
+      ll.position.y = -0.31;
+      this.leftLeg.add(ll);
+      this.leftLeg.position.set(-0.2, 0.62, 0);
+      group.add(this.leftLeg);
+
+      this.rightLeg = new THREE.Group();
+      const rl = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.62, 0.24), pantsMat);
+      rl.position.y = -0.31;
+      this.rightLeg.add(rl);
+      this.rightLeg.position.set(0.2, 0.62, 0);
+      group.add(this.rightLeg);
+
+      const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.2 });
+      const sl = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.22, 0.42), shoeMat);
+      sl.position.set(0, -0.62, -0.05);
+      this.leftLeg.add(sl);
+      const sr = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.22, 0.42), shoeMat);
+      sr.position.set(0, -0.62, -0.05);
+      this.rightLeg.add(sr);
+
+      const armMat = new THREE.MeshStandardMaterial({ color: c.arms });
+      this.leftArm = new THREE.Group();
+      const la = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.58, 0.18), armMat);
+      la.position.y = -0.29;
+      this.leftArm.add(la);
+      this.leftArm.position.set(-0.42, 1.28, 0);
+      group.add(this.leftArm);
+
+      this.rightArm = new THREE.Group();
+      const ra = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.58, 0.18), armMat);
+      ra.position.y = -0.29;
+      this.rightArm.add(ra);
+      this.rightArm.position.set(0.42, 1.28, 0);
+      group.add(this.rightArm);
+    }
+
+    buildTitanModel(group, c) {
+      const torso = new THREE.Mesh(
+        new THREE.BoxGeometry(0.95, 1.1, 0.65),
+        new THREE.MeshStandardMaterial({ color: c.jacket, metalness: 0.8, roughness: 0.3 })
+      );
+      torso.position.y = 1.1;
+      group.add(torso);
+
+      const emblem = new THREE.Mesh(
+        new THREE.BoxGeometry(0.35, 0.35, 0.05),
+        new THREE.MeshBasicMaterial({ color: 0xFF2222 })
+      );
+      emblem.position.set(0, 1.15, 0.33);
+      group.add(emblem);
+
+      [-0.58, 0.58].forEach(sx => {
+        const pad = new THREE.Mesh(
+          new THREE.BoxGeometry(0.38, 0.32, 0.55),
+          new THREE.MeshStandardMaterial({ color: c.hood, metalness: 0.9 })
+        );
+        pad.position.set(sx, 1.5, 0);
+        group.add(pad);
+      });
+
+      const helmet = new THREE.Mesh(
+        new THREE.BoxGeometry(0.7, 0.65, 0.65),
+        new THREE.MeshStandardMaterial({ color: c.hood, metalness: 0.7, roughness: 0.3 })
+      );
+      helmet.position.y = 1.95;
+      group.add(helmet);
+
+      const visor = new THREE.Mesh(
+        new THREE.BoxGeometry(0.5, 0.14, 0.05),
+        new THREE.MeshBasicMaterial({ color: 0xFF0000 })
+      );
+      visor.position.set(0, 1.98, 0.33);
+      group.add(visor);
+
+      const legMat = new THREE.MeshStandardMaterial({ color: c.pants, metalness: 0.6 });
+      this.leftLeg = new THREE.Group();
+      const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.75, 0.38), legMat);
+      lLeg.position.y = -0.37;
+      this.leftLeg.add(lLeg);
+      this.leftLeg.position.set(-0.28, 0.7, 0);
+      group.add(this.leftLeg);
+
+      this.rightLeg = new THREE.Group();
+      const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.75, 0.38), legMat);
+      rLeg.position.y = -0.37;
+      this.rightLeg.add(rLeg);
+      this.rightLeg.position.set(0.28, 0.7, 0);
+      group.add(this.rightLeg);
+
+      const bootMat = new THREE.MeshStandardMaterial({ color: c.shoes, metalness: 0.7 });
+      const bL = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.32, 0.56), bootMat);
+      bL.position.set(0, -0.75, -0.05);
+      this.leftLeg.add(bL);
+      const bR = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.32, 0.56), bootMat);
+      bR.position.set(0, -0.75, -0.05);
+      this.rightLeg.add(bR);
+
+      const armMat = new THREE.MeshStandardMaterial({ color: c.arms, metalness: 0.7 });
+      this.leftArm = new THREE.Group();
+      const laM = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.65, 0.32), armMat);
+      laM.position.y = -0.32;
+      this.leftArm.add(laM);
+      this.leftArm.position.set(-0.63, 1.35, 0);
+      group.add(this.leftArm);
+
+      this.rightArm = new THREE.Group();
+      const raM = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.65, 0.32), armMat);
+      raM.position.y = -0.32;
+      this.rightArm.add(raM);
+      this.rightArm.position.set(0.63, 1.35, 0);
+      group.add(this.rightArm);
+    }
+
+    buildZephyrModel(group, c) {
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(0.72, 0.95, 0.52),
+        new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.4, transparent: true, opacity: 0.9 })
+      );
+      body.position.y = 1.05;
+      group.add(body);
+
+      const rune = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.2),
+        new THREE.MeshBasicMaterial({ color: c.patch, wireframe: true })
+      );
+      rune.position.set(0, 1.15, 0.28);
+      group.add(rune);
+      this.zephyrRune = rune;
+
+      const head = new THREE.Mesh(
+        new THREE.SphereGeometry(0.46, 16, 16),
+        new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.5, transparent: true, opacity: 0.92 })
+      );
+      head.position.y = 1.72;
+      group.add(head);
+
+      [-0.15, 0.15].forEach(ex => {
+        const eye = new THREE.Mesh(
+          new THREE.SphereGeometry(0.07, 8, 8),
+          new THREE.MeshBasicMaterial({ color: c.patch })
+        );
+        eye.position.set(ex, 1.75, 0.37);
+        group.add(eye);
+      });
+
+      const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.6, transparent: true, opacity: 0.85 });
+      this.leftLeg = new THREE.Group();
+      const ll = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.65, 0.26), pantsMat);
+      ll.position.y = -0.32;
+      this.leftLeg.add(ll);
+      this.leftLeg.position.set(-0.22, 0.65, 0);
+      group.add(this.leftLeg);
+
+      this.rightLeg = new THREE.Group();
+      const rl = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.65, 0.26), pantsMat);
+      rl.position.y = -0.32;
+      this.rightLeg.add(rl);
+      this.rightLeg.position.set(0.22, 0.65, 0);
+      group.add(this.rightLeg);
+
+      const bootMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.3 });
+      const sbL = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.45), bootMat);
+      sbL.position.set(0, -0.65, -0.05);
+      this.leftLeg.add(sbL);
+      const sbR = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.45), bootMat);
+      sbR.position.set(0, -0.65, -0.05);
+      this.rightLeg.add(sbR);
+
+      const armMat = new THREE.MeshStandardMaterial({ color: c.arms, transparent: true, opacity: 0.88 });
+      this.leftArm = new THREE.Group();
+      const la = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 0.2), armMat);
+      la.position.y = -0.3;
+      this.leftArm.add(la);
+      this.leftArm.position.set(-0.48, 1.3, 0);
+      group.add(this.leftArm);
+
+      this.rightArm = new THREE.Group();
+      const ra = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 0.2), armMat);
+      ra.position.y = -0.3;
+      this.rightArm.add(ra);
+      this.rightArm.position.set(0.48, 1.3, 0);
+      group.add(this.rightArm);
+
+      [-0.9, 0.9].forEach(ox => {
+        const orb = new THREE.Mesh(
+          new THREE.IcosahedronGeometry(0.15, 1),
+          new THREE.MeshBasicMaterial({ color: c.patch, wireframe: true })
+        );
+        orb.position.set(ox, 1.2, 0);
+        group.add(orb);
+      });
+    }
 
     createInitialWorld() {
       this.trackSegments.forEach(s => this.scene.remove(s));
@@ -830,14 +786,12 @@
       const group = new THREE.Group();
       group.position.z = zPos;
 
-      // Grass ground
       const groundGeo = new THREE.PlaneGeometry(80, 20);
       const groundMat = new THREE.MeshStandardMaterial({ color: 0x4A7C3F, roughness: 0.9 });
       const ground = new THREE.Mesh(groundGeo, groundMat);
       ground.rotation.x = -Math.PI / 2;
       group.add(ground);
 
-      // Dirt path along tracks
       const pathGeo = new THREE.PlaneGeometry(10, 20);
       const pathMat = new THREE.MeshStandardMaterial({ color: 0x8B6914, roughness: 0.95 });
       const path = new THREE.Mesh(pathGeo, pathMat);
@@ -845,7 +799,6 @@
       path.position.y = 0.01;
       group.add(path);
 
-      // Rails and sleepers
       const railTopMat = new THREE.MeshStandardMaterial({ color: 0x82C9D4, metalness: 0.8, roughness: 0.2 });
       const railSideMat = new THREE.MeshStandardMaterial({ color: 0x355A65, roughness: 0.5 });
       const sleeperMat = new THREE.MeshStandardMaterial({ color: 0x8F5D2D, roughness: 0.9 });
@@ -867,7 +820,6 @@
         });
       });
 
-      // Zoo enclosures, trees, and animals on both sides
       [-1, 1].forEach((side) => {
         const sideX = side * 14;
         this.createFence(group, sideX, 0);
@@ -883,7 +835,6 @@
         }
       });
 
-      // Wooden archway with vines
       const archMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.7 });
       const arch = new THREE.Mesh(new THREE.BoxGeometry(18, 0.5, 0.5), archMat);
       arch.position.set(0, 6.5, 0);
@@ -900,7 +851,6 @@
         group.add(vine);
       }
 
-      // Flying birds
       const birdMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
       for (let i = 0; i < 3; i++) {
         const bird = new THREE.Group();
@@ -919,7 +869,6 @@
         group.add(bird);
       }
 
-      // Zoo sign
       const signMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.7 });
       const signPost = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.5, 6), signMat);
       signPost.position.set(10, 1.25, -5);
@@ -968,7 +917,6 @@
       animal.position.set(x, 0, z);
 
       if (type === 0) {
-        // Elephant
         const bodyMat = new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.8 });
         const body = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.2, 2.0), bodyMat);
         body.position.y = 0.8;
@@ -986,7 +934,6 @@
           animal.add(ear);
         });
       } else if (type === 1) {
-        // Giraffe
         const bodyMat = new THREE.MeshStandardMaterial({ color: 0xDAA520, roughness: 0.7 });
         const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.0, 1.5), bodyMat);
         body.position.y = 1.5;
@@ -1004,7 +951,6 @@
           animal.add(spot);
         }
       } else if (type === 2) {
-        // Zebra
         const bodyMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 });
         const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 1.4), bodyMat);
         body.position.y = 0.8;
@@ -1019,7 +965,6 @@
         head.position.set(0, 1.3, 0.8);
         animal.add(head);
       } else if (type === 3) {
-        // Lion
         const bodyMat = new THREE.MeshStandardMaterial({ color: 0xDAA520, roughness: 0.7 });
         const body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.8, 1.6), bodyMat);
         body.position.y = 0.6;
@@ -1032,7 +977,6 @@
         head.position.set(0, 1.0, 1.0);
         animal.add(head);
       } else {
-        // Monkey
         const bodyMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.8 });
         const body = new THREE.Mesh(new THREE.SphereGeometry(0.3, 8, 8), bodyMat);
         body.position.y = 0.5;
@@ -1045,19 +989,14 @@
       group.add(animal);
     }
 
-    // ----------------------------------------------------------------------
-    // EVENTS & KEYBOARD HANDLING
-    // ----------------------------------------------------------------------
     bindEvents() {
       window.addEventListener('resize', () => this.onWindowResize());
 
       window.addEventListener('keydown', (e) => {
         if (this.state !== 'RUNNING' && this.state !== 'READY' && this.state !== 'GAMEOVER') return;
-
         const code = e.code;
         if (this.keysPressed[code]) return;
         this.keysPressed[code] = true;
-
         this.handleKeyPress(code, e);
       });
 
@@ -1071,10 +1010,8 @@
         }
       });
 
-      // Touch controls for mobile
       this.bindTouchControls();
 
-      // Helper to bind both click and touch for iOS compatibility
       const bindBtn = (id, handler) => {
         const el = document.getElementById(id);
         if (!el) return;
@@ -1100,19 +1037,20 @@
       const canvas = this.canvas;
       if (!canvas) return;
 
-      // Prevent default touch behaviors on game view
-      document.getElementById('game-view').addEventListener('touchmove', (e) => {
-        if (this.state === 'RUNNING') e.preventDefault();
-      }, { passive: false });
+      const gameView = document.getElementById('game-view');
+      if (gameView) {
+        gameView.addEventListener('touchmove', (e) => {
+          if (this.state === 'RUNNING') e.preventDefault();
+        }, { passive: false });
 
-      document.getElementById('game-view').addEventListener('touchstart', (e) => {
-        if (this.state === 'RUNNING') e.preventDefault();
-      }, { passive: false });
+        gameView.addEventListener('touchstart', (e) => {
+          if (this.state === 'RUNNING') e.preventDefault();
+        }, { passive: false });
 
-      // Prevent double-tap zoom
-      document.getElementById('game-view').addEventListener('dblclick', (e) => {
-        e.preventDefault();
-      });
+        gameView.addEventListener('dblclick', (e) => {
+          e.preventDefault();
+        });
+      }
 
       let touchStartX = 0;
       let touchStartY = 0;
@@ -1163,7 +1101,6 @@
         }
       }, { passive: false });
 
-      // On-screen touch buttons
       const btnLeft = document.getElementById('btn-touch-left');
       const btnRight = document.getElementById('btn-touch-right');
       const btnJump = document.getElementById('btn-touch-jump');
@@ -1270,9 +1207,6 @@
       btn.style.opacity = audio.muted ? '0.5' : '1.0';
     }
 
-    // ----------------------------------------------------------------------
-    // GAME LIFECYCLE
-    // ----------------------------------------------------------------------
     open() {
       this.container.classList.add('active');
       this.state = 'READY';
@@ -1360,7 +1294,6 @@
       this.powerups = { magnet: 0, shield: false, mult2x: 0, hover: 0 };
       this.shieldRechargeTimer = 0;
 
-      // TITAN REX: Start with shield
       if (this.characterPerks.startWithShield) {
         this.powerups.shield = true;
       }
@@ -1398,9 +1331,6 @@
       this.overlayCountdown.style.display = 'none';
     }
 
-    // ----------------------------------------------------------------------
-    // MAIN GAME LOOP & INFINITE SIMULATION
-    // ----------------------------------------------------------------------
     startRenderLoop() {
       if (this.animId) cancelAnimationFrame(this.animId);
       this.lastTime = performance.now();
@@ -1425,12 +1355,10 @@
       const speedMult = this.characterPerks.speedMultiplier || 1;
       this.speed = Math.min((STARTING_SPEED + this.elapsedActiveTime * SPEED_ACCEL) * speedMult, MAX_SPEED * speedMult);
 
-      // Power-up Timers
       if (this.powerups.magnet > 0) this.powerups.magnet -= delta;
       if (this.powerups.mult2x > 0) this.powerups.mult2x -= delta;
       if (this.powerups.hover > 0) this.powerups.hover -= delta;
 
-      // TITAN REX: Shield recharge
       if (this.characterPerks.shieldRecharge && !this.powerups.shield) {
         this.shieldRechargeTimer += delta;
         if (this.shieldRechargeTimer >= this.characterPerks.shieldRecharge) {
@@ -1451,11 +1379,9 @@
       this.hudScore.textContent = String(this.score).padStart(6, '0');
       this.hudDistance.textContent = `${this.distance.toFixed(1)} m`;
 
-      // 1. Lane Switch Lerp
       const targetX = LANES[this.targetLane];
       this.playerX += (targetX - this.playerX) * Math.min(LANE_CHANGE_SPEED * delta, 1.0);
 
-      // 2. Jump Physics or Hoverboard
       if (this.powerups.hover > 0) {
         this.playerY = 1.6;
       } else if (this.isJumping) {
@@ -1471,7 +1397,6 @@
         this.playerY = 0;
       }
 
-      // 3. Slide Physics
       if (this.isSliding) {
         this.slideTimer += delta;
         if (this.slideTimer >= SLIDE_DURATION) {
@@ -1479,7 +1404,6 @@
         }
       }
 
-      // 4. Running Stride Animation
       this.runAnimTime += delta * this.speed * 1.2;
       const legAngle = Math.sin(this.runAnimTime) * 0.6;
       if (this.leftLeg && this.rightLeg && !this.isJumping && !this.isSliding) {
@@ -1494,17 +1418,15 @@
         this.rightArm.rotation.x = 0;
       }
 
+      if (this.zephyrRune) {
+        this.zephyrRune.rotation.y += 0.05;
+        this.zephyrRune.rotation.x += 0.03;
+      }
+
       this.updatePlayerTransform();
-
-      // 5. Endless Track Recycling
       this.updateEndlessTrackRecycling(moveDistance);
-
-      // 6. TRULY INFINITE CONTINUOUS PROCEDURAL SPAWNING FIX!
-      // Move nextSpawnZ forward by moveDistance as the world advances!
       this.nextSpawnZ += moveDistance;
       this.updateProceduralSpawning();
-
-      // 7. World Objects & Collision
       this.updateWorldObjects(moveDistance, delta);
     }
 
@@ -1525,45 +1447,12 @@
         }
       }
 
-      // Billboard: rotate sprite plane to always face the camera
-      if (this.spritePlane && this.camera) {
-        // Face toward camera on Y-axis only, keeping character upright
-        const dir = new THREE.Vector3();
-        dir.subVectors(this.camera.position, this.playerMesh.position);
-        dir.y = 0;
-        dir.normalize();
-        this.spritePlane.lookAt(
-          this.playerMesh.position.x + dir.x,
-          this.playerMesh.position.y + this.spritePlane.position.y,
-          this.playerMesh.position.z + dir.z
-        );
-
-        // Slide: squish the sprite downward
-        if (this.isSliding) {
-          this.spritePlane.scale.set(1.2, 0.55, 1.0);
-          this.spritePlane.position.y = 0.72;
-        } else {
-          this.spritePlane.scale.set(1.0, 1.0, 1.0);
-          this.spritePlane.position.y = 1.3;
-        }
-        // No scale on playerMesh itself for sprites
-        this.playerMesh.scale.set(1.0, 1.0, 1.0);
+      if (this.isSliding) {
+        this.playerMesh.scale.set(1.1, 0.45, 1.0);
       } else {
-        // 3D geometry mode — squash the whole group for slide
-        if (this.isSliding) {
-          this.playerMesh.scale.set(1.1, 0.45, 1.0);
-        } else {
-          this.playerMesh.scale.set(1.0, 1.0, 1.0);
-        }
-      }
-
-      // Zephyr Void: spin the rune orb
-      if (this.zephyrRune) {
-        this.zephyrRune.rotation.y += 0.08;
-        this.zephyrRune.rotation.x += 0.04;
+        this.playerMesh.scale.set(1.0, 1.0, 1.0);
       }
     }
-
 
     updateEndlessTrackRecycling(moveDistance) {
       let minZ = 0;
@@ -1579,15 +1468,10 @@
       });
     }
 
-    // ----------------------------------------------------------------------
-    // TRULY INFINITE CONTINUOUS PROCEDURAL SPAWNING
-    // ----------------------------------------------------------------------
     updateProceduralSpawning() {
-      // Continuously fill forward vision (z > -220) with obstacle rows every SPAWN_ROW_SPACING (11 units)!
       while (this.nextSpawnZ > -220) {
         this.spawnObstaclePattern(this.nextSpawnZ);
 
-        // 25% Chance to spawn a Power-up Item
         if (Math.random() < 0.25) {
           const powerTypes = [TYPE_POWER_MAGNET, TYPE_POWER_SHIELD, TYPE_POWER_2X, TYPE_POWER_HOVER];
           const chosenPower = powerTypes[Math.floor(Math.random() * powerTypes.length)];
@@ -1595,7 +1479,6 @@
           this.spawnPowerupItem(chosenPower, openLane, this.nextSpawnZ - 5);
         }
 
-        // Advance spawn marker further into the distance by row spacing
         this.nextSpawnZ -= SPAWN_ROW_SPACING;
       }
     }
@@ -1882,18 +1765,13 @@
       this.hudPowerupBar.innerHTML = html;
     }
 
-    // ----------------------------------------------------------------------
-    // WORLD OBJECT UPDATES & COLLISION DETECTION
-    // ----------------------------------------------------------------------
     updateWorldObjects(moveDistance, delta) {
-      // Player Bounding Box
       const playerHalfHeight = this.isSliding ? 0.35 : 0.9;
       const playerYCenter = this.playerY + playerHalfHeight;
       const pMin = new THREE.Vector3(this.playerX - 0.35, playerYCenter - playerHalfHeight, -0.3);
       const pMax = new THREE.Vector3(this.playerX + 0.35, playerYCenter + playerHalfHeight, 0.3);
       this.playerBox.set(pMin, pMax);
 
-      // 1. Process Obstacles & Incoming Hazards
       for (let i = this.obstacles.length - 1; i >= 0; i--) {
         const obs = this.obstacles[i];
 
@@ -1944,7 +1822,6 @@
           );
         }
 
-        // Collision Check
         if (this.playerBox.intersectsBox(obs.bounds)) {
           if (this.powerups.shield) {
             this.powerups.shield = false;
@@ -1967,7 +1844,6 @@
         }
       }
 
-      // 2. Process Power-up Items
       for (let i = this.powerupItems.length - 1; i >= 0; i--) {
         const item = this.powerupItems[i];
         item.z += moveDistance;
@@ -1998,7 +1874,6 @@
         }
       }
 
-      // 3. Process Gold Coins & Coin Magnet
       for (let i = this.coins.length - 1; i >= 0; i--) {
         const coin = this.coins[i];
         coin.z += moveDistance;
@@ -2037,7 +1912,6 @@
         }
       }
 
-      // 4. Process Particles
       for (let i = this.particles.length - 1; i >= 0; i--) {
         const p = this.particles[i];
         p.life -= delta;
