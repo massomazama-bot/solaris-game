@@ -1014,12 +1014,15 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   z-index: 20;
   pointer-events: auto;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px 0;
 }
 
 .game-screen-overlay.active {
@@ -1357,6 +1360,57 @@ html, body {
   }
   .hud-hint-banner {
     display: none;
+  }
+  .game-arcade-title {
+    font-size: 36px;
+    margin-bottom: 4px;
+  }
+  .game-arcade-subtitle {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+  .char-selector-wrapper {
+    margin-bottom: 10px;
+  }
+  .char-grid {
+    gap: 6px;
+  }
+  .char-card {
+    padding: 8px 6px;
+  }
+  .char-avatar-box {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  .char-name {
+    font-size: 9px;
+  }
+  .char-class {
+    font-size: 8px;
+  }
+  .char-perk-badge {
+    font-size: 8px;
+    min-height: 30px;
+    padding: 3px 4px;
+  }
+  .char-select-btn {
+    font-size: 8px;
+    padding: 2px 6px;
+  }
+  .controls-grid {
+    display: none;
+  }
+  .game-btn-group {
+    margin-bottom: 10px;
+  }
+  .arcade-btn-primary {
+    font-size: 14px;
+    padding: 12px 24px;
+  }
+  .arcade-btn-secondary {
+    font-size: 12px;
+    padding: 10px 20px;
   }
 }
 
