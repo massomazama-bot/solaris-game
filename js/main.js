@@ -325,7 +325,7 @@ function initCharacterSelection() {
   });
 
   charCards.forEach(card => {
-    card.addEventListener('click', () => {
+    const selectChar = () => {
       const charId = card.dataset.char;
       if (!charId) return;
 
@@ -343,6 +343,12 @@ function initCharacterSelection() {
       if (window.CyberRunGame) {
         window.CyberRunGame.setCharacter(charId);
       }
+    };
+
+    card.addEventListener('click', selectChar);
+    card.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      selectChar();
     });
   });
 }
