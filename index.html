@@ -401,65 +401,152 @@
       <h1 class="game-arcade-title">RAILWAY RUNNER</h1>
       <p class="game-arcade-subtitle">3D CITY TRACK RUNNER</p>
 
-      <!-- 5-CHARACTER SELECTION SYSTEM -->
+      <!-- 8-CHARACTER SELECTION SYSTEM -->
       <div class="char-selector-wrapper">
-        <div class="char-selector-header">SELECT PILOT &amp; DISTINCT PERK</div>
-        <div class="char-grid" id="char-select-grid">
-          <!-- Char 1: Pilot Vex -->
-          <div class="char-card selected" data-char="vex">
-            <div class="char-avatar-box">🎧</div>
-            <div class="char-name">PILOT VEX</div>
-            <div class="char-class">CYBER RUNNER</div>
-            <div class="char-perk-badge">
-              <strong>BALANCED PILOT</strong>
-              <span>+10% Bonus Base Score</span>
+        <div class="char-selector-header">SELECT YOUR PILOT</div>
+        <div class="char-selector-subtitle">Each pilot has a unique 3D model &amp; gameplay perk</div>
+        <div class="char-grid-scroll">
+          <div class="char-grid" id="char-select-grid">
+            <!-- Char 1: Pilot Vex -->
+            <div class="char-card selected" data-char="vex" data-tier="starter">
+              <div class="char-tier-badge tier-starter">STARTER</div>
+              <div class="char-portrait">
+                <img src="assets/char_vex.jpg" alt="Pilot Vex" loading="lazy">
+                <div class="char-portrait-glow"></div>
+              </div>
+              <div class="char-info">
+                <div class="char-name">PILOT VEX</div>
+                <div class="char-class">CYBER RUNNER</div>
+                <div class="char-perk-badge">
+                  <strong>⚖️ BALANCED PILOT</strong>
+                  <span>+10% Bonus Base Score</span>
+                </div>
+              </div>
+              <button class="char-select-btn">EQUIPPED</button>
             </div>
-            <button class="char-select-btn">EQUIPPED</button>
-          </div>
-          <!-- Char 2: Nova Strike -->
-          <div class="char-card" data-char="nova">
-            <div class="char-avatar-box">🥷</div>
-            <div class="char-name">NOVA STRIKE</div>
-            <div class="char-class">NEON SHADOW</div>
-            <div class="char-perk-badge">
-              <strong>MAGNET MASTER</strong>
-              <span>+50% Magnet Duration &amp; Range</span>
+            <!-- Char 2: Nova Strike -->
+            <div class="char-card" data-char="nova" data-tier="rare">
+              <div class="char-tier-badge tier-rare">RARE</div>
+              <div class="char-portrait">
+                <img src="assets/char_nova.jpg" alt="Nova Strike" loading="lazy">
+                <div class="char-portrait-glow"></div>
+              </div>
+              <div class="char-info">
+                <div class="char-name">NOVA STRIKE</div>
+                <div class="char-class">NEON SHADOW</div>
+                <div class="char-perk-badge">
+                  <strong>🧲 MAGNET MASTER</strong>
+                  <span>+50% Magnet Duration &amp; Range</span>
+                </div>
+              </div>
+              <button class="char-select-btn">SELECT</button>
             </div>
-            <button class="char-select-btn">SELECT</button>
-          </div>
-          <!-- Char 3: Aria Blitz -->
-          <div class="char-card" data-char="aria">
-            <div class="char-avatar-box">⚡</div>
-            <div class="char-name">ARIA BLITZ</div>
-            <div class="char-class">HYPER SPEEDSTER</div>
-            <div class="char-perk-badge">
-              <strong>HYPER VELOCITY</strong>
-              <span>+20% Speed &amp; 1.5x Distance Score</span>
+            <!-- Char 3: Aria Blitz -->
+            <div class="char-card" data-char="aria" data-tier="epic">
+              <div class="char-tier-badge tier-epic">EPIC</div>
+              <div class="char-portrait">
+                <img src="assets/char_aria.jpg" alt="Aria Blitz" loading="lazy">
+                <div class="char-portrait-glow"></div>
+              </div>
+              <div class="char-info">
+                <div class="char-name">ARIA BLITZ</div>
+                <div class="char-class">HYPER SPEEDSTER</div>
+                <div class="char-perk-badge">
+                  <strong>⚡ HYPER VELOCITY</strong>
+                  <span>+20% Speed &amp; 1.5x Distance</span>
+                </div>
+              </div>
+              <button class="char-select-btn">SELECT</button>
             </div>
-            <button class="char-select-btn">SELECT</button>
-          </div>
-          <!-- Char 4: Titan Rex (3D mech model) -->
-          <div class="char-card" data-char="titan">
-            <div class="char-avatar-box" style="background: linear-gradient(135deg,#2a3a4a,#1a2530); border-color: #FF2222;">🤖</div>
-            <div class="char-name">TITAN REX</div>
-            <div class="char-class">CYBER MECH</div>
-            <div class="char-perk-badge">
-              <strong>IRON SHIELD</strong>
-              <span>Auto 1st Shield &amp; 30s Recharge</span>
+            <!-- Char 4: Titan Rex -->
+            <div class="char-card" data-char="titan" data-tier="legendary">
+              <div class="char-tier-badge tier-legendary">LEGENDARY</div>
+              <div class="char-portrait">
+                <img src="assets/char_titan.jpg" alt="Titan Rex" loading="lazy">
+                <div class="char-portrait-glow"></div>
+              </div>
+              <div class="char-info">
+                <div class="char-name">TITAN REX</div>
+                <div class="char-class">CYBER MECH</div>
+                <div class="char-perk-badge">
+                  <strong>🛡️ IRON SHIELD</strong>
+                  <span>Auto Shield &amp; 30s Recharge</span>
+                </div>
+              </div>
+              <button class="char-select-btn">SELECT</button>
             </div>
-            <button class="char-select-btn">SELECT</button>
-          </div>
-          <!-- Char 5: Zephyr Void (3D phantom model) -->
-          <div class="char-card" data-char="zephyr">
-            <div class="char-avatar-box" style="background: linear-gradient(135deg,#1a3d2a,#2d1a4a); border-color: #9B59B6;">🔮</div>
-            <div class="char-name">ZEPHYR VOID</div>
-            <div class="char-class">METAVERSE PHANTOM</div>
-            <div class="char-perk-badge">
-              <strong>COIN ALCHEMIST</strong>
-              <span>2x Gold Coins &amp; +25% Hover</span>
+            <!-- Char 5: Zephyr Void -->
+            <div class="char-card" data-char="zephyr" data-tier="legendary">
+              <div class="char-tier-badge tier-legendary">LEGENDARY</div>
+              <div class="char-portrait">
+                <img src="assets/char_zephyr.jpg" alt="Zephyr Void" loading="lazy">
+                <div class="char-portrait-glow"></div>
+              </div>
+              <div class="char-info">
+                <div class="char-name">ZEPHYR VOID</div>
+                <div class="char-class">METAVERSE PHANTOM</div>
+                <div class="char-perk-badge">
+                  <strong>🔮 COIN ALCHEMIST</strong>
+                  <span>2x Gold Coins &amp; +25% Hover</span>
+                </div>
+              </div>
+              <button class="char-select-btn">SELECT</button>
             </div>
-            <button class="char-select-btn">SELECT</button>
+            <!-- Char 6: Blaze Fury (NEW) -->
+            <div class="char-card" data-char="blaze" data-tier="epic">
+              <div class="char-tier-badge tier-epic">EPIC</div>
+              <div class="char-portrait">
+                <img src="assets/char_blaze.jpg" alt="Blaze Fury" loading="lazy">
+                <div class="char-portrait-glow"></div>
+              </div>
+              <div class="char-info">
+                <div class="char-name">BLAZE FURY</div>
+                <div class="char-class">INFERNO STRIKER</div>
+                <div class="char-perk-badge">
+                  <strong>🔥 FIRE TRAIL</strong>
+                  <span>Burn obstacles &amp; 2x Multiplier</span>
+                </div>
+              </div>
+              <button class="char-select-btn">SELECT</button>
+            </div>
+            <!-- Char 7: Frost Byte (NEW) -->
+            <div class="char-card" data-char="frost" data-tier="rare">
+              <div class="char-tier-badge tier-rare">RARE</div>
+              <div class="char-portrait">
+                <img src="assets/char_jake.jpg" alt="Frost Byte" loading="lazy">
+                <div class="char-portrait-glow"></div>
+              </div>
+              <div class="char-info">
+                <div class="char-name">FROST BYTE</div>
+                <div class="char-class">ICE SENTINEL</div>
+                <div class="char-perk-badge">
+                  <strong>❄️ CRYO SHIELD</strong>
+                  <span>Slow obstacles &amp; +40% Shield</span>
+                </div>
+              </div>
+              <button class="char-select-btn">SELECT</button>
+            </div>
+            <!-- Char 8: Shadow X (NEW) -->
+            <div class="char-card" data-char="shadow" data-tier="epic">
+              <div class="char-tier-badge tier-epic">EPIC</div>
+              <div class="char-portrait">
+                <img src="assets/char_nova.jpg" alt="Shadow X" loading="lazy">
+                <div class="char-portrait-glow"></div>
+              </div>
+              <div class="char-info">
+                <div class="char-name">SHADOW X</div>
+                <div class="char-class">STEALTH HACKER</div>
+                <div class="char-perk-badge">
+                  <strong>👤 PHASE SHIFT</strong>
+                  <span>Ghost mode 3s &amp; +30% Score</span>
+                </div>
+              </div>
+              <button class="char-select-btn">SELECT</button>
+            </div>
           </div>
+        </div>
+        <div class="char-scroll-hint">
+          <span>◀ SCROLL TO SEE ALL PILOTS ▶</span>
         </div>
       </div>
 

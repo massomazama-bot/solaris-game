@@ -107,6 +107,36 @@
       perkDesc: '2x Gold Coins & +25% Hover',
       colors: { jacket: 0x2ECC71, patch: 0x9B59B6, hood: 0xA8E6CF, visor: 0x9B59B6, pants: 0x1A5C30, shoes: 0x2ECC71, arms: 0x2ECC71 },
       perks: { coinMultiplier: 2, hoverDuration: 7.5 }
+    },
+    blaze: {
+      id: 'blaze',
+      name: 'BLAZE FURY',
+      class: 'INFERNO STRIKER',
+      icon: '🔥',
+      perkName: 'FIRE TRAIL',
+      perkDesc: 'Burn obstacles & 2x Multiplier',
+      colors: { jacket: 0xCC3300, patch: 0xFF6600, hood: 0xFF4400, visor: 0xFFAA00, pants: 0x330000, shoes: 0xFF2200, arms: 0xCC3300 },
+      perks: { mult2xDuration: 12, scoreMultiplier: 1.15 }
+    },
+    frost: {
+      id: 'frost',
+      name: 'FROST BYTE',
+      class: 'ICE SENTINEL',
+      icon: '❄️',
+      perkName: 'CRYO SHIELD',
+      perkDesc: 'Slow obstacles & +40% Shield',
+      colors: { jacket: 0x88CCEE, patch: 0xAAEEFF, hood: 0xCCEEFF, visor: 0x44AAFF, pants: 0x224466, shoes: 0x99DDFF, arms: 0x88CCEE },
+      perks: { shieldDuration: 1.4, speedReduction: 0.85 }
+    },
+    shadow: {
+      id: 'shadow',
+      name: 'SHADOW X',
+      class: 'STEALTH HACKER',
+      icon: '👤',
+      perkName: 'PHASE SHIFT',
+      perkDesc: 'Ghost mode 3s & +30% Score',
+      colors: { jacket: 0x1A1A2E, patch: 0x00FF41, hood: 0x0D0D1A, visor: 0x00FF41, pants: 0x0A0A15, shoes: 0x1A1A2E, arms: 0x1A1A2E },
+      perks: { ghostDuration: 3, scoreMultiplier: 1.3 }
     }
   };
 
@@ -426,6 +456,12 @@
         this.buildAriaModel(group, c);
       } else if (this.selectedCharacter === 'titan') {
         this.buildTitanModel(group, c);
+      } else if (this.selectedCharacter === 'blaze') {
+        this.buildBlazeModel(group, c);
+      } else if (this.selectedCharacter === 'frost') {
+        this.buildFrostModel(group, c);
+      } else if (this.selectedCharacter === 'shadow') {
+        this.buildShadowModel(group, c);
       } else {
         this.buildZephyrModel(group, c);
       }
@@ -767,6 +803,248 @@
           new THREE.MeshBasicMaterial({ color: c.patch, wireframe: true })
         );
         orb.position.set(ox, 1.2, 0);
+        group.add(orb);
+      });
+    }
+
+    buildBlazeModel(group, c) {
+      // Fiery torso with emissive glow
+      const torsoMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.3, metalness: 0.5, emissive: 0x440000, emissiveIntensity: 0.3 });
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.95, 0.52), torsoMat);
+      torso.position.y = 1.05;
+      group.add(torso);
+
+      // Flame emblem on chest
+      const emblem = new THREE.Mesh(new THREE.OctahedronGeometry(0.18), new THREE.MeshBasicMaterial({ color: c.patch }));
+      emblem.position.set(0, 1.12, 0.27);
+      emblem.rotation.z = Math.PI / 4;
+      group.add(emblem);
+
+      // Spiky shoulder pads
+      [-0.52, 0.52].forEach(sx => {
+        const spike = new THREE.Mesh(
+          new THREE.ConeGeometry(0.18, 0.4, 6),
+          new THREE.MeshStandardMaterial({ color: c.patch, metalness: 0.6, emissive: 0x331100, emissiveIntensity: 0.4 })
+        );
+        spike.position.set(sx, 1.55, 0);
+        group.add(spike);
+      });
+
+      // Fire-styled head
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.48, 16, 16), new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.3, emissive: 0x220000, emissiveIntensity: 0.2 }));
+      head.position.y = 1.74;
+      group.add(head);
+
+      // Orange flame visor
+      const visor = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.1, 0.28), new THREE.MeshBasicMaterial({ color: c.visor }));
+      visor.position.set(0, 1.68, -0.4);
+      group.add(visor);
+
+      // Legs
+      const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.5 });
+      this.leftLeg = new THREE.Group();
+      const ll = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.68, 0.28), pantsMat);
+      ll.position.y = -0.34;
+      this.leftLeg.add(ll);
+      this.leftLeg.position.set(-0.24, 0.66, 0);
+      group.add(this.leftLeg);
+
+      this.rightLeg = new THREE.Group();
+      const rl = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.68, 0.28), pantsMat);
+      rl.position.y = -0.34;
+      this.rightLeg.add(rl);
+      this.rightLeg.position.set(0.24, 0.66, 0);
+      group.add(this.rightLeg);
+
+      // Flame boots
+      const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.2, emissive: 0x220000, emissiveIntensity: 0.3 });
+      const sl = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.26, 0.48), shoeMat);
+      sl.position.set(0, -0.68, -0.05);
+      this.leftLeg.add(sl);
+      const sr = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.26, 0.48), shoeMat);
+      sr.position.set(0, -0.68, -0.05);
+      this.rightLeg.add(sr);
+
+      // Arms
+      const armMat = new THREE.MeshStandardMaterial({ color: c.arms, emissive: 0x220000, emissiveIntensity: 0.2 });
+      this.leftArm = new THREE.Group();
+      const la = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.62, 0.22), armMat);
+      la.position.y = -0.31;
+      this.leftArm.add(la);
+      this.leftArm.position.set(-0.48, 1.32, 0);
+      group.add(this.leftArm);
+
+      this.rightArm = new THREE.Group();
+      const ra = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.62, 0.22), armMat);
+      ra.position.y = -0.31;
+      this.rightArm.add(ra);
+      this.rightArm.position.set(0.48, 1.32, 0);
+      group.add(this.rightArm);
+    }
+
+    buildFrostModel(group, c) {
+      // Icy crystalline torso
+      const torsoMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.2, metalness: 0.6, transparent: true, opacity: 0.92 });
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.78, 0.96, 0.54), torsoMat);
+      torso.position.y = 1.06;
+      group.add(torso);
+
+      // Crystal chest emblem
+      const crystal = new THREE.Mesh(new THREE.OctahedronGeometry(0.16), new THREE.MeshBasicMaterial({ color: c.patch, transparent: true, opacity: 0.9 }));
+      crystal.position.set(0, 1.12, 0.28);
+      group.add(crystal);
+
+      // Ice crystal shoulder plates
+      [-0.55, 0.55].forEach(sx => {
+        const plate = new THREE.Mesh(
+          new THREE.BoxGeometry(0.32, 0.24, 0.42),
+          new THREE.MeshStandardMaterial({ color: c.hood, metalness: 0.7, roughness: 0.15, transparent: true, opacity: 0.85 })
+        );
+        plate.position.set(sx, 1.48, 0);
+        group.add(plate);
+      });
+
+      // Frost head with icy helmet
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.15, metalness: 0.5 }));
+      head.position.y = 1.74;
+      group.add(head);
+
+      // Blue visor
+      const visor = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.1, 0.3), new THREE.MeshBasicMaterial({ color: c.visor }));
+      visor.position.set(0, 1.7, -0.42);
+      group.add(visor);
+
+      // Legs
+      const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.5, metalness: 0.3 });
+      this.leftLeg = new THREE.Group();
+      const ll = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.7, 0.3), pantsMat);
+      ll.position.y = -0.35;
+      this.leftLeg.add(ll);
+      this.leftLeg.position.set(-0.25, 0.68, 0);
+      group.add(this.leftLeg);
+
+      this.rightLeg = new THREE.Group();
+      const rl = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.7, 0.3), pantsMat);
+      rl.position.y = -0.35;
+      this.rightLeg.add(rl);
+      this.rightLeg.position.set(0.25, 0.68, 0);
+      group.add(this.rightLeg);
+
+      // Ice boots
+      const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.1, metalness: 0.5 });
+      const sl = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.28, 0.5), shoeMat);
+      sl.position.set(0, -0.7, -0.05);
+      this.leftLeg.add(sl);
+      const sr = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.28, 0.5), shoeMat);
+      sr.position.set(0, -0.7, -0.05);
+      this.rightLeg.add(sr);
+
+      // Arms
+      const armMat = new THREE.MeshStandardMaterial({ color: c.arms, roughness: 0.2, metalness: 0.4 });
+      this.leftArm = new THREE.Group();
+      const la = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.64, 0.24), armMat);
+      la.position.y = -0.32;
+      this.leftArm.add(la);
+      this.leftArm.position.set(-0.5, 1.34, 0);
+      group.add(this.leftArm);
+
+      this.rightArm = new THREE.Group();
+      const ra = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.64, 0.24), armMat);
+      ra.position.y = -0.32;
+      this.rightArm.add(ra);
+      this.rightArm.position.set(0.5, 1.34, 0);
+      group.add(this.rightArm);
+
+      // Floating ice shards around character
+      [-0.85, 0.85].forEach(ox => {
+        const shard = new THREE.Mesh(
+          new THREE.ConeGeometry(0.08, 0.35, 4),
+          new THREE.MeshBasicMaterial({ color: c.patch, transparent: true, opacity: 0.7 })
+        );
+        shard.position.set(ox, 1.3, 0);
+        shard.rotation.z = ox > 0 ? -0.3 : 0.3;
+        group.add(shard);
+      });
+    }
+
+    buildShadowModel(group, c) {
+      // Dark translucent body
+      const torsoMat = new THREE.MeshStandardMaterial({ color: c.jacket, roughness: 0.6, transparent: true, opacity: 0.85 });
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.48), torsoMat);
+      torso.position.y = 1.04;
+      group.add(torso);
+
+      // Matrix code emblem (green wireframe)
+      const emblem = new THREE.Mesh(
+        new THREE.BoxGeometry(0.3, 0.3, 0.05),
+        new THREE.MeshBasicMaterial({ color: c.patch, wireframe: true })
+      );
+      emblem.position.set(0, 1.1, 0.25);
+      group.add(emblem);
+
+      // Dark hood
+      const hood = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), new THREE.MeshStandardMaterial({ color: c.hood, roughness: 0.7, transparent: true, opacity: 0.9 }));
+      hood.position.y = 1.72;
+      group.add(hood);
+
+      // Green matrix visor
+      const visor = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.06, 0.26), new THREE.MeshBasicMaterial({ color: c.visor }));
+      visor.position.set(0, 1.68, -0.42);
+      group.add(visor);
+
+      // Second visor line for hacker look
+      const visor2 = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.03, 0.26), new THREE.MeshBasicMaterial({ color: c.visor, transparent: true, opacity: 0.5 }));
+      visor2.position.set(0, 1.62, -0.42);
+      group.add(visor2);
+
+      // Legs
+      const pantsMat = new THREE.MeshStandardMaterial({ color: c.pants, roughness: 0.7, transparent: true, opacity: 0.85 });
+      this.leftLeg = new THREE.Group();
+      const ll = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.64, 0.24), pantsMat);
+      ll.position.y = -0.32;
+      this.leftLeg.add(ll);
+      this.leftLeg.position.set(-0.22, 0.64, 0);
+      group.add(this.leftLeg);
+
+      this.rightLeg = new THREE.Group();
+      const rl = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.64, 0.24), pantsMat);
+      rl.position.y = -0.32;
+      this.rightLeg.add(rl);
+      this.rightLeg.position.set(0.22, 0.64, 0);
+      group.add(this.rightLeg);
+
+      // Dark boots
+      const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.5 });
+      const sl = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.22, 0.42), shoeMat);
+      sl.position.set(0, -0.64, -0.05);
+      this.leftLeg.add(sl);
+      const sr = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.22, 0.42), shoeMat);
+      sr.position.set(0, -0.64, -0.05);
+      this.rightLeg.add(sr);
+
+      // Arms
+      const armMat = new THREE.MeshStandardMaterial({ color: c.arms, transparent: true, opacity: 0.82 });
+      this.leftArm = new THREE.Group();
+      const la = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.58, 0.2), armMat);
+      la.position.y = -0.29;
+      this.leftArm.add(la);
+      this.leftArm.position.set(-0.44, 1.28, 0);
+      group.add(this.leftArm);
+
+      this.rightArm = new THREE.Group();
+      const ra = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.58, 0.2), armMat);
+      ra.position.y = -0.29;
+      this.rightArm.add(ra);
+      this.rightArm.position.set(0.44, 1.28, 0);
+      group.add(this.rightArm);
+
+      // Floating data orbs
+      [-0.8, 0.8].forEach(ox => {
+        const orb = new THREE.Mesh(
+          new THREE.IcosahedronGeometry(0.12, 1),
+          new THREE.MeshBasicMaterial({ color: c.patch, wireframe: true, transparent: true, opacity: 0.7 })
+        );
+        orb.position.set(ox, 1.15, 0);
         group.add(orb);
       });
     }

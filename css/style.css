@@ -1119,8 +1119,8 @@ html, body {
    -------------------------------------------------------------------------- */
 .char-selector-wrapper {
   width: 100%;
-  max-width: 960px;
-  margin-bottom: 20px;
+  max-width: 1100px;
+  margin-bottom: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1128,137 +1128,297 @@ html, body {
 
 .char-selector-header {
   font-family: var(--font-heading);
-  font-size: 13px;
-  letter-spacing: 0.2em;
-  color: #BBEAF4;
+  font-size: 15px;
+  letter-spacing: 0.25em;
+  color: #FFFFFF;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .char-selector-header::before,
 .char-selector-header::after {
   content: '';
   display: inline-block;
-  width: 40px;
+  width: 50px;
   height: 1px;
-  background: #54D3F5;
+  background: linear-gradient(90deg, transparent, #54D3F5, transparent);
+}
+
+.char-selector-subtitle {
+  font-family: var(--font-nav);
+  font-size: 11px;
+  color: #7BB8C8;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+
+.char-grid-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(84, 211, 245, 0.4) transparent;
+}
+
+.char-grid-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.char-grid-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.char-grid-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #078FBD, #54D3F5);
+  border-radius: 3px;
 }
 
 .char-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  width: 100%;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+  min-width: 1000px;
+  padding: 4px;
 }
 
 .char-card {
-  background: rgba(7, 30, 48, 0.75);
-  border: 2px solid rgba(84, 211, 245, 0.3);
-  border-radius: 12px;
-  padding: 12px 10px;
+  background: rgba(7, 20, 35, 0.85);
+  border: 2px solid rgba(84, 211, 245, 0.2);
+  border-radius: 14px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   cursor: pointer;
-  transition: all 0.25 ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  min-width: 115px;
+}
+
+.char-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(7, 143, 189, 0.08) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.char-card:hover::before {
+  opacity: 1;
 }
 
 .char-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px) scale(1.02);
   border-color: #54D3F5;
-  box-shadow: 0 8px 24px rgba(7, 143, 189, 0.4);
-  background: rgba(7, 45, 70, 0.85);
+  box-shadow: 0 12px 36px rgba(7, 143, 189, 0.5), 0 0 20px rgba(84, 211, 245, 0.15);
 }
 
 .char-card.selected {
   border-color: var(--game-gold);
-  background: rgba(20, 60, 95, 0.95);
-  box-shadow: 0 0 20px rgba(255, 216, 46, 0.6), inset 0 0 15px rgba(255, 216, 46, 0.2);
+  background: rgba(20, 40, 65, 0.95);
+  box-shadow: 0 0 25px rgba(255, 216, 46, 0.5), inset 0 0 20px rgba(255, 216, 46, 0.1), 0 8px 30px rgba(0, 0, 0, 0.4);
 }
 
-.char-avatar-box {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.4);
-  border: 2px solid #54D3F5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  margin-bottom: 8px;
+.char-card.selected::before {
+  background: linear-gradient(180deg, transparent 30%, rgba(255, 216, 46, 0.1) 100%);
+  opacity: 1;
+}
+
+/* Tier Badges */
+.char-tier-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-family: var(--font-game);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  z-index: 3;
+  text-transform: uppercase;
+}
+
+.tier-starter {
+  background: rgba(84, 211, 245, 0.2);
+  color: #54D3F5;
+  border: 1px solid rgba(84, 211, 245, 0.4);
+}
+
+.tier-rare {
+  background: rgba(66, 133, 244, 0.25);
+  color: #6EA8FE;
+  border: 1px solid rgba(66, 133, 244, 0.5);
+}
+
+.tier-epic {
+  background: rgba(155, 89, 182, 0.25);
+  color: #D4A5FF;
+  border: 1px solid rgba(155, 89, 182, 0.5);
+}
+
+.tier-legendary {
+  background: rgba(255, 216, 46, 0.2);
+  color: var(--game-gold);
+  border: 1px solid rgba(255, 216, 46, 0.5);
+  animation: legendaryPulse 2s ease-in-out infinite;
+}
+
+@keyframes legendaryPulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(255, 216, 46, 0.3); }
+  50% { box-shadow: 0 0 10px rgba(255, 216, 46, 0.6); }
+}
+
+/* Character Portrait */
+.char-portrait {
+  width: 100%;
+  aspect-ratio: 1;
   position: relative;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
 }
 
-.char-card.selected .char-avatar-box {
-  border-color: var(--game-gold);
-  box-shadow: 0 0 12px var(--game-gold);
+.char-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease, filter 0.3s ease;
+}
+
+.char-card:hover .char-portrait img {
+  transform: scale(1.08);
+  filter: brightness(1.15) saturate(1.2);
+}
+
+.char-card.selected .char-portrait img {
+  filter: brightness(1.1) saturate(1.15);
+}
+
+.char-portrait-glow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to top, rgba(7, 20, 35, 0.95), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.char-card.selected .char-portrait-glow {
+  background: linear-gradient(to top, rgba(20, 40, 65, 0.95), transparent);
+}
+
+/* Character Info Section */
+.char-info {
+  padding: 6px 8px 4px;
+  width: 100%;
+  position: relative;
+  z-index: 2;
 }
 
 .char-name {
   font-family: var(--font-heading);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #FFFFFF;
   letter-spacing: 0.05em;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
   white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .char-class {
   font-family: var(--font-nav);
-  font-size: 10px;
-  color: #BBEAF4;
-  margin-bottom: 8px;
-  letter-spacing: 0.05em;
+  font-size: 9px;
+  color: #7BB8C8;
+  margin-bottom: 6px;
+  letter-spacing: 0.08em;
 }
 
 .char-perk-badge {
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(84, 211, 245, 0.5);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(84, 211, 245, 0.3);
   border-radius: 6px;
-  padding: 4px 6px;
+  padding: 4px 5px;
   width: 100%;
-  font-size: 10px;
+  font-size: 8px;
   color: var(--game-gold);
   font-family: var(--font-game);
-  line-height: 1.2;
-  min-height: 38px;
+  line-height: 1.3;
+  min-height: 32px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.char-card.selected .char-perk-badge {
-  border-color: var(--game-gold);
-  background: rgba(255, 216, 46, 0.15);
+.char-perk-badge strong {
+  font-size: 8px;
+  display: block;
+  margin-bottom: 1px;
 }
 
+.char-card.selected .char-perk-badge {
+  border-color: rgba(255, 216, 46, 0.5);
+  background: rgba(255, 216, 46, 0.12);
+}
+
+/* Select / Equipped Button */
 .char-select-btn {
-  margin-top: 8px;
+  margin: 6px 8px 8px;
   font-family: var(--font-game);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
   border: none;
-  background: rgba(84, 211, 245, 0.2);
+  background: rgba(84, 211, 245, 0.15);
   color: #54D3F5;
   cursor: pointer;
-  width: 100%;
+  width: calc(100% - 16px);
   text-transform: uppercase;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  letter-spacing: 0.05em;
+  position: relative;
+  z-index: 2;
+}
+
+.char-select-btn:hover {
+  background: rgba(84, 211, 245, 0.3);
+  box-shadow: 0 2px 10px rgba(84, 211, 245, 0.25);
 }
 
 .char-card.selected .char-select-btn {
-  background: var(--game-gold);
-  color: #5C3A00;
+  background: linear-gradient(135deg, var(--game-gold), #FFA500);
+  color: #3A2200;
+  box-shadow: 0 2px 12px rgba(255, 216, 46, 0.4);
+}
+
+/* Scroll Hint */
+.char-scroll-hint {
+  margin-top: 6px;
+  font-family: var(--font-nav);
+  font-size: 10px;
+  color: rgba(84, 211, 245, 0.5);
+  letter-spacing: 0.1em;
+  animation: scrollHintPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes scrollHintPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
 
 /* In-HUD Character Badge */
@@ -1296,15 +1456,24 @@ html, body {
   line-height: 1.2;
 }
 
+@media (max-width: 1100px) {
+  .char-grid {
+    grid-template-columns: repeat(8, 1fr);
+    min-width: 900px;
+  }
+}
+
 @media (max-width: 900px) {
   .char-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    min-width: 480px;
   }
 }
 
 @media (max-width: 580px) {
   .char-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    min-width: 360px;
   }
 }
 
