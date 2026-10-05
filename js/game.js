@@ -370,8 +370,9 @@
       if (typeof THREE === 'undefined') return;
 
       this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(0x87CEEB);
-      this.scene.fog = new THREE.FogExp2(0x87CEEB, 0.008);
+      const textureLoader = new THREE.TextureLoader();
+      this.scene.background = textureLoader.load('assets/game_bg.jpg');
+      this.scene.fog = new THREE.FogExp2(0x2a1040, 0.008);
 
       this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 250);
       this.camera.position.set(0, 4.5, 7.5);
