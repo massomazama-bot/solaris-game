@@ -449,23 +449,48 @@
       const c = char.colors;
       const group = new THREE.Group();
 
-      if (this.selectedCharacter === 'vex') {
-        this.buildVexModel(group, c);
-      } else if (this.selectedCharacter === 'nova') {
-        this.buildNovaModel(group, c);
-      } else if (this.selectedCharacter === 'aria') {
-        this.buildAriaModel(group, c);
-      } else if (this.selectedCharacter === 'titan') {
-        this.buildTitanModel(group, c);
-      } else if (this.selectedCharacter === 'blaze') {
-        this.buildBlazeModel(group, c);
-      } else if (this.selectedCharacter === 'frost') {
-        this.buildFrostModel(group, c);
-      } else if (this.selectedCharacter === 'shadow') {
-        this.buildShadowModel(group, c);
-      } else {
-        this.buildZephyrModel(group, c);
-      }
+      const loader = new THREE.GLTFLoader();
+      loader.load(
+        `assets/models/${this.selectedCharacter}.glb`,
+        (gltf) => {
+          // Success: Use the provided 3D GLTF model
+          const model = gltf.scene;
+          model.scale.set(1.5, 1.5, 1.5); // Default scale, adjustable
+          model.position.y = 0; 
+          
+          // Fix orientation if model faces the camera
+          model.rotation.y = Math.PI; 
+          
+          model.traverse((child) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+          group.add(model);
+        },
+        undefined,
+        (error) => {
+          // Fallback: Use the stylized Three.js procedural shapes if the 3D file isn't found
+          if (this.selectedCharacter === 'vex') {
+            this.buildVexModel(group, c);
+          } else if (this.selectedCharacter === 'nova') {
+            this.buildNovaModel(group, c);
+          } else if (this.selectedCharacter === 'aria') {
+            this.buildAriaModel(group, c);
+          } else if (this.selectedCharacter === 'titan') {
+            this.buildTitanModel(group, c);
+          } else if (this.selectedCharacter === 'blaze') {
+            this.buildBlazeModel(group, c);
+          } else if (this.selectedCharacter === 'frost') {
+            this.buildFrostModel(group, c);
+          } else if (this.selectedCharacter === 'shadow') {
+            this.buildShadowModel(group, c);
+          } else {
+            this.buildZephyrModel(group, c);
+          }
+        }
+      );
 
       const shieldGeo = new THREE.SphereGeometry(1.2, 16, 16);
       const shieldMat = new THREE.MeshBasicMaterial({
