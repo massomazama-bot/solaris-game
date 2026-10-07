@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYBER OF X - Enterprise AI OS</title>
+  <style>
+    :root {
+      --bg-color: #0A0A12;
+      --panel-bg: rgba(16, 18, 30, 0.85);
+      --border-color: #54D3F5;
+      --text-main: #FFFFFF;
+      --text-muted: #8892B0;
+      --accent: #54D3F5;
+      --gold: #FFD82E;
+      --error: #FF6B6B;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-image: 
+        linear-gradient(to right, rgba(84, 211, 245, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(84, 211, 245, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+    .dashboard {
+      width: 90%;
+      max-width: 1000px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 0 30px rgba(84, 211, 245, 0.2);
+      padding: 40px;
+      backdrop-filter: blur(10px);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--text-muted);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin: 0;
+    }
+    .status {
+      color: #10B981;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      background: #10B981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10B981;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; box-shadow: 0 0 10px #10B981; }
+      50% { opacity: 0.5; box-shadow: 0 0 2px #10B981; }
+      100% { opacity: 1; box-shadow: 0 0 10px #10B981; }
+    }
+    .terminal {
+      background: #050505;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 20px;
+      height: 400px;
+      overflow-y: auto;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .cmd-line { margin-bottom: 15px; }
+    .cmd-prompt { color: var(--accent); }
+    .agent-marketing { color: #A78BFA; }
+    .agent-finance { color: #34D399; }
+    .agent-orchestrator { color: var(--gold); }
+    .action-button {
+      background: rgba(84, 211, 245, 0.1);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 12px 24px;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      margin-top: 30px;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .action-button:hover {
+      background: var(--accent);
+      color: #000;
+      box-shadow: 0 0 15px var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard">
+    <div class="header">
+      <h1 class="title">Enterprise AI Board of Directors</h1>
+      <div class="status">
+        <div class="status-dot"></div>
+        SYSTEM ONLINE
+      </div>
+    </div>
+
+    <p style="color: var(--text-muted); margin-bottom: 20px;">
+      Welcome to the AI-Native Enterprise OS. The autonomous Marketing and Finance agents manage campaigns below. 
+      You are the Human in the Loop. Large budget approvals require your override.
+    </p>
+
+    <div class="terminal" id="terminal">
+      <div class="cmd-line">
+        <span class="cmd-prompt">C:\CYBER_OF_X></span> python orchestrator.py
+      </div>
+      <div class="cmd-line" style="color: var(--text-muted);">
+        --- Starting AI Enterprise Workflow ---<br>
+        Objective: Increase Q3 social media engagement by 15%
+      </div>
+      <div class="cmd-line">
+        <span class="agent-marketing">[Marketing Agent]</span> Working on proposal...<br>
+        <span class="agent-marketing">[Notion Log]</span> Proposed campaign 'Project Phoenix' requesting $25000.0
+      </div>
+      <div class="cmd-line">
+        <span class="agent-finance">[Finance Agent]</span> Reviewing budget request against policy...<br>
+        <span class="agent-finance">[Notion Log]</span> Auto-approved budget for 'Project Phoenix' (Within $30k limit).
+      </div>
+      <div class="cmd-line">
+        <span class="agent-orchestrator">[SUCCESS]</span> Workflow Complete: Budget automatically secured. Marketing can proceed.
+      </div>
+
+      <div class="cmd-line" style="margin-top: 30px; border-top: 1px dashed #333; padding-top: 20px; color: var(--text-muted);">
+        --- Starting AI Enterprise Workflow ---<br>
+        Objective: Aggressive market takeover requiring massive ad spend
+      </div>
+      <div class="cmd-line">
+        <span class="agent-marketing">[Marketing Agent]</span> Working on proposal...<br>
+        <span class="agent-marketing">[Notion Log]</span> Proposed campaign 'Global Domination' requesting $55000.0
+      </div>
+      <div class="cmd-line">
+        <span class="agent-finance">[Finance Agent]</span> Reviewing budget request against policy...<br>
+        <span class="agent-finance">[Notion Log]</span> Escalated budget request for 'Global Domination' to Human. Exceeds $30k limit.
+      </div>
+      <div class="cmd-line" id="human-prompt">
+        <span class="agent-orchestrator">[Orchestrator]</span> Escalation required. Requesting Human Approval via Notion...<br>
+        <span style="color: #FFD82E;">*** HUMAN APPROVAL NEEDED ***</span><br>
+        Human, do you approve this request? (yes/no): <span id="cursor" style="animation: pulse 1s infinite;">_</span>
+      </div>
+    </div>
+
+    <div style="text-align: right;">
+      <a href="#" class="action-button" onclick="alert('To run the real AI agents, open your local terminal, navigate to the enterprise-os-agents folder, and type: python orchestrator.py'); return false;">
+        LAUNCH LOCAL TERMINAL 
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // Simulate terminal typing for effect
+    setTimeout(() => {
+      document.getElementById('cursor').style.display = 'none';
+      document.getElementById('human-prompt').innerHTML += ' <span style="color: white;">yes</span>';
+      
+      setTimeout(() => {
+        const terminal = document.getElementById('terminal');
+        terminal.innerHTML += `
+          <div class="cmd-line" style="margin-top: 15px;">
+            <span class="agent-orchestrator">[Human Board of Directors]</span> Decision received: Approved<br>
+            <span class="agent-orchestrator">[Notion Log]</span> Human Approved the escalated budget.<br>
+            <span style="color: #10B981; font-weight: bold;">[SUCCESS] Workflow Complete: Budget secured. Marketing can proceed.</span>
+          </div>
+        `;
+        terminal.scrollTop = terminal.scrollHeight;
+      }, 500);
+    }, 3000);
+  </script>
+</body>
+</html>
