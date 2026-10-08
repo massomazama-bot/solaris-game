@@ -130,69 +130,101 @@
     </p>
 
     <div class="terminal" id="terminal">
-      <div class="cmd-line">
-        <span class="cmd-prompt">C:\CYBER_OF_X></span> python orchestrator.py
-      </div>
       <div class="cmd-line" style="color: var(--text-muted);">
-        --- Starting AI Enterprise Workflow ---<br>
-        Objective: Increase Q3 social media engagement by 15%
-      </div>
-      <div class="cmd-line">
-        <span class="agent-marketing">[Marketing Agent]</span> Working on proposal...<br>
-        <span class="agent-marketing">[Notion Log]</span> Proposed campaign 'Project Phoenix' requesting $25000.0
-      </div>
-      <div class="cmd-line">
-        <span class="agent-finance">[Finance Agent]</span> Reviewing budget request against policy...<br>
-        <span class="agent-finance">[Notion Log]</span> Auto-approved budget for 'Project Phoenix' (Within $30k limit).
-      </div>
-      <div class="cmd-line">
-        <span class="agent-orchestrator">[SUCCESS]</span> Workflow Complete: Budget automatically secured. Marketing can proceed.
-      </div>
-
-      <div class="cmd-line" style="margin-top: 30px; border-top: 1px dashed #333; padding-top: 20px; color: var(--text-muted);">
-        --- Starting AI Enterprise Workflow ---<br>
-        Objective: Aggressive market takeover requiring massive ad spend
-      </div>
-      <div class="cmd-line">
-        <span class="agent-marketing">[Marketing Agent]</span> Working on proposal...<br>
-        <span class="agent-marketing">[Notion Log]</span> Proposed campaign 'Global Domination' requesting $55000.0
-      </div>
-      <div class="cmd-line">
-        <span class="agent-finance">[Finance Agent]</span> Reviewing budget request against policy...<br>
-        <span class="agent-finance">[Notion Log]</span> Escalated budget request for 'Global Domination' to Human. Exceeds $30k limit.
-      </div>
-      <div class="cmd-line" id="human-prompt">
-        <span class="agent-orchestrator">[Orchestrator]</span> Escalation required. Requesting Human Approval via Notion...<br>
-        <span style="color: #FFD82E;">*** HUMAN APPROVAL NEEDED ***</span><br>
-        Human, do you approve this request? (yes/no): <span id="cursor" style="animation: pulse 1s infinite;">_</span>
+        Type an objective and click RUN to deploy the agents.
       </div>
     </div>
-
-    <div style="text-align: right;">
-      <a href="#" class="action-button" onclick="alert('To run the real AI agents, open your local terminal, navigate to the enterprise-os-agents folder, and type: python orchestrator.py'); return false;">
-        LAUNCH LOCAL TERMINAL 
-      </a>
+    
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <input type="text" id="objective-input" placeholder="e.g. Aggressive market takeover requiring massive ad spend" 
+        style="flex: 1; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid #333; color: white; border-radius: 4px;">
+      <button class="action-button" id="btn-run" style="margin-top: 0;">DEPLOY AGENTS</button>
     </div>
+
   </div>
 
   <script>
-    // Simulate terminal typing for effect
-    setTimeout(() => {
-      document.getElementById('cursor').style.display = 'none';
-      document.getElementById('human-prompt').innerHTML += ' <span style="color: white;">yes</span>';
+    const terminal = document.getElementById('terminal');
+    const runBtn = document.getElementById('btn-run');
+    const objInput = document.getElementById('objective-input');
+    
+    let currentApprovalId = null;
+
+    function appendLine(html) {
+      const div = document.createElement('div');
+      div.className = 'cmd-line';
+      div.innerHTML = html;
+      terminal.appendChild(div);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    runBtn.addEventListener('click', async () => {
+      const objective = objInput.value || "Increase Q3 social media engagement by 15%";
+      terminal.innerHTML = '';
       
-      setTimeout(() => {
-        const terminal = document.getElementById('terminal');
-        terminal.innerHTML += `
-          <div class="cmd-line" style="margin-top: 15px;">
-            <span class="agent-orchestrator">[Human Board of Directors]</span> Decision received: Approved<br>
-            <span class="agent-orchestrator">[Notion Log]</span> Human Approved the escalated budget.<br>
-            <span style="color: #10B981; font-weight: bold;">[SUCCESS] Workflow Complete: Budget secured. Marketing can proceed.</span>
-          </div>
-        `;
-        terminal.scrollTop = terminal.scrollHeight;
-      }, 500);
-    }, 3000);
+      appendLine(`<span class="cmd-prompt">C:\\CYBER_OF_X></span> Deploying agents for: "${objective}"`);
+      appendLine(`<span class="agent-marketing">[Marketing Agent]</span> Formulating campaign proposal...`);
+      
+      runBtn.disabled = true;
+      try {
+        const response = await fetch('http://localhost:5000/api/run', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ objective })
+        });
+        const data = await response.json();
+        
+        appendLine(`<span class="agent-marketing">[Notion Log]</span> Proposed campaign '${data.marketing.campaign_name}' requesting $${data.marketing.budget}`);
+        appendLine(`<span class="agent-finance">[Finance Agent]</span> Reviewing budget against policy...`);
+        
+        if (data.status === 'auto_approved') {
+          appendLine(`<span class="agent-finance">[Notion Log]</span> Auto-approved budget for '${data.marketing.campaign_name}'.`);
+          appendLine(`<span class="agent-orchestrator" style="color:#10B981; font-weight:bold;">[SUCCESS]</span> Budget automatically secured. Marketing can proceed.`);
+          runBtn.disabled = false;
+        } else if (data.status === 'pending_human') {
+          appendLine(`<span class="agent-finance">[Notion Log]</span> Escalated budget request to Human. Exceeds $30k limit.`);
+          appendLine(`<span class="agent-orchestrator">[Orchestrator]</span> Escalation required. Requesting Human Approval...`);
+          
+          appendLine(`
+            <div id="human-panel" style="margin-top: 15px; border: 1px dashed var(--gold); padding: 15px; border-radius: 4px;">
+              <div style="color: var(--gold); font-weight: bold; margin-bottom: 10px;">*** HUMAN APPROVAL NEEDED ***</div>
+              <div>Campaign: ${data.marketing.campaign_name} | Budget Requested: $${data.marketing.budget}</div>
+              <div style="margin-top: 10px;">
+                <button onclick="submitDecision('Approved')" style="background: #10B981; border: none; padding: 8px 16px; color: black; font-weight: bold; cursor: pointer; border-radius: 3px;">APPROVE</button>
+                <button onclick="submitDecision('Denied')" style="background: #FF6B6B; border: none; padding: 8px 16px; color: black; font-weight: bold; cursor: pointer; border-radius: 3px; margin-left: 10px;">DENY</button>
+              </div>
+            </div>
+          `);
+          currentApprovalId = data.approval_id;
+        }
+      } catch (err) {
+        appendLine(`<span style="color:red">Error: Could not connect to API. Make sure 'python app.py' is running on port 5000.</span>`);
+        runBtn.disabled = false;
+      }
+    });
+
+    window.submitDecision = async (decision) => {
+      document.getElementById('human-panel').style.opacity = '0.5';
+      
+      try {
+        await fetch('http://localhost:5000/api/approve', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ approval_id: currentApprovalId, decision })
+        });
+        
+        appendLine(`<span class="agent-orchestrator">[Human Board of Directors]</span> Decision received: ${decision}`);
+        
+        if (decision === 'Approved') {
+          appendLine(`<span class="agent-orchestrator" style="color:#10B981; font-weight:bold;">[SUCCESS]</span> Workflow Complete: Budget secured. Marketing can proceed.`);
+        } else {
+          appendLine(`<span class="agent-orchestrator" style="color:#FF6B6B; font-weight:bold;">[DENIED]</span> Workflow Complete: Budget denied. Marketing must revise.`);
+        }
+      } catch (err) {
+        appendLine(`<span style="color:red">Error submitting decision.</span>`);
+      }
+      runBtn.disabled = false;
+    };
   </script>
 </body>
 </html>
